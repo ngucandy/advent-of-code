@@ -1,15 +1,16 @@
 #!/usr/bin/env awk -f
 
 # Advent of Code 2022 Day 14 part 1
+
 BEGIN {
     FS = " -> "
-    MINX = 500
-    MAXX = 500
-    MINY = 0
-    MAXY = 0
     SOURCEX = 500
     SOURCEY = 0
     CAVE[SOURCEX, SOURCEY] = "+"
+    MINX = SOURCEX
+    MAXX = SOURCEX
+    MINY = SOURCEY
+    MAXY = SOURCEY
 }
 
 {
@@ -30,10 +31,9 @@ BEGIN {
 }
 
 END {
-    for (i = 1; MAXY > dropSand(); ++i) {
-    }
-    print(i - 1)
+    for (i = 1; MAXY > dropSand(); ++i) {}
     printCave()
+    print(i - 1)
 }
 
 function min(x, y) {
