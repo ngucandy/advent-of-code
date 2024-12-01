@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bufio"
+	"encoding/csv"
 	"fmt"
+	"io"
 	"os"
-	"regexp"
 	"sort"
 	"strconv"
 )
@@ -46,16 +46,24 @@ func printTotalDistance(list1 []int, list2 []int) {
 }
 
 func parseLists(file *os.File) ([]int, []int) {
-	delimre := regexp.MustCompile("\\s+")
 	var list1, list2 []int
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		tokens := delimre.Split(line, -1)
-		if n, err := strconv.ParseInt(tokens[0], 10, 32); err == nil {
+
+	r := csv.NewReader(file)
+	r.Comma = ' '
+	r.TrimLeadingSpace = true
+
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+		if n, err := strconv.ParseInt(record[0], 10, 32); err == nil {
 			list1 = append(list1, int(n))
 		}
-		if n, err := strconv.ParseInt(tokens[1], 10, 32); err == nil {
+		if n, err := strconv.ParseInt(record[1], 10, 32); err == nil {
 			list2 = append(list2, int(n))
 		}
 	}
