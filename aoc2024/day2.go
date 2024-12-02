@@ -28,16 +28,18 @@ func main() {
 		}
 	}(file)
 
-	safe := countSafeReports(file)
-	slog.Info("Report count:", "safe", safe)
+	safe1, safe2 := countSafeReports(file)
+	slog.Info("Report count part 1:", "safe", safe1)
+	slog.Info("Report count part 2:", "safe", safe2)
 }
 
-func countSafeReports(file *os.File) int {
+func countSafeReports(file *os.File) (int, int) {
 	r := csv.NewReader(file)
 	r.Comma = ' '
 	r.FieldsPerRecord = -1
 
-	safeCount := 0
+	safe1 := 0
+	safe2 := 0
 	for {
 		report, err := r.Read()
 		if err == io.EOF {
@@ -49,7 +51,8 @@ func countSafeReports(file *os.File) int {
 
 		// part 1
 		if isSafe(report) {
-			safeCount++
+			safe1++
+			safe2++
 			continue
 		}
 
@@ -57,12 +60,12 @@ func countSafeReports(file *os.File) int {
 		// brute force, create new slices with the ith element missing
 		for i := range len(report) {
 			if isSafe(slices.Concat(report[:i], report[i+1:])) {
-				safeCount++
+				safe2++
 				break
 			}
 		}
 	}
-	return safeCount
+	return safe1, safe2
 }
 
 func isSafe(report []string) bool {
