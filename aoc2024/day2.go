@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"slices"
 	"strconv"
 )
 
@@ -45,8 +46,20 @@ func countSafeReports(file *os.File) int {
 		if err != nil {
 			panic(err)
 		}
+
+		// part 1
 		if isSafe(report) {
 			safeCount++
+			continue
+		}
+
+		// part 2
+		// brute force, create new slices with the ith element missing
+		for i := range len(report) {
+			if isSafe(slices.Concat(report[:i], report[i+1:])) {
+				safeCount++
+				break
+			}
 		}
 	}
 	return safeCount
@@ -78,14 +91,14 @@ func isSafe(report []string) bool {
 			v = -v
 		}
 		if v < MIN_DIFF || v > MAX_DIFF {
-			slog.Info("Level difference out of range:", "diffs", levelDiffs)
+			slog.Info("Level difference out of range:", "report", report, "diffs", levelDiffs)
 			return false
 		}
 	}
 	if ascCount != 0 && ascCount != len(levelDiffs) {
-		slog.Info("Levels not all ascending or descending:", "diffs", levelDiffs, "count", ascCount)
+		slog.Info("Levels not all ascending or descending:", "report", report, "diffs", levelDiffs, "count", ascCount)
 		return false
 	}
-	slog.Info("Levels are safe:", "diffs", levelDiffs)
+	slog.Info("Levels are safe:", "report", report, "diffs", levelDiffs)
 	return true
 }
