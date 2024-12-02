@@ -27,6 +27,18 @@ func main() {
 		}
 	}(file)
 
+	schematic, parts := buildSchematic(file)
+
+	sum := 0
+	for _, part := range parts {
+		if isSymbolAdjacent(part, schematic) {
+			sum += part.val
+		}
+	}
+	slog.Info("Sum of all part numbers:", "sum", sum)
+}
+
+func buildSchematic(file *os.File) ([][]int, []Part) {
 	var schematic [][]int
 	var parts []Part
 	y := 0
@@ -61,14 +73,7 @@ func main() {
 		schematic = append(schematic, row)
 		y++
 	}
-
-	sum := 0
-	for _, part := range parts {
-		if isSymbolAdjacent(part, schematic) {
-			sum += part.val
-		}
-	}
-	slog.Info("Sum of all part numbers:", "sum", sum)
+	return schematic, parts
 }
 
 func isSymbolAdjacent(part Part, schematic [][]int) bool {
