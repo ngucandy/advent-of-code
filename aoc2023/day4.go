@@ -3,9 +3,11 @@ package main
 import (
 	"bufio"
 	"log/slog"
+	"math"
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 )
 
 var (
@@ -26,38 +28,44 @@ func main() {
 		}
 	}(file)
 
-	sum := 0
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	go part1(file, wg)
+	//go part2(file, wg)
+	wg.Wait()
+}
+
+func part1(file *os.File, wg *sync.WaitGroup) {
+	defer wg.Done()
+	points := 0
+	counts := countWinningNumbers(file)
+	for _, count := range counts {
+		points += int(math.Pow(2, float64(count-1)))
+	}
+	slog.Info("Total Points:", "points", points)
+}
+
+func countWinningNumbers(file *os.File) map[string]int {
+	counts := make(map[string]int)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
 		s := strings.Split(line, ":")
+		cardId := rexpDigits.FindString(s[0])
 		s = strings.Split(s[1], "|")
 		winningNums := rexpDigits.FindAllString(s[0], -1)
 		myNums := rexpDigits.FindAllString(s[1], -1)
-		slog.Info("Numbers:", "winning", winningNums, "mine", myNums)
 		m := make(map[string]bool)
 		for _, num := range winningNums {
 			m[num] = false
 		}
+		winningCount := 0
 		for _, num := range myNums {
 			if _, ok := m[num]; ok {
-				m[num] = true
+				winningCount++
 			}
 		}
-		slog.Info("Matched numbers:", "map", m)
-
-		points := 0
-		for _, v := range m {
-			if v {
-				if points == 0 {
-					points = 1
-				} else {
-					points <<= 1
-				}
-			}
-		}
-		slog.Info("Points:", "points", points)
-		sum += points
+		counts[cardId] = winningCount
 	}
-	slog.Info("Total Points:", "sum", sum)
+	return counts
 }
