@@ -6,6 +6,8 @@ import (
 	"math"
 	"os"
 	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -28,30 +30,54 @@ func main() {
 		}
 	}(file)
 
+	counts := countWinningNumbers(file)
 	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	go part1(file, wg)
-	//go part2(file, wg)
+	wg.Add(2)
+	go part1(counts, wg)
+	go part2(counts, wg)
 	wg.Wait()
 }
 
-func part1(file *os.File, wg *sync.WaitGroup) {
+func part2(counts map[int]int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	cards := make(map[int]int)
+	var ids []int
+	for id := range counts {
+		cards[id] = 1
+		ids = append(ids, id)
+	}
+	sort.Ints(ids)
+	for _, id := range ids {
+		for i := 1; i <= counts[id]; i++ {
+			cards[id+i] += cards[id]
+		}
+	}
+	sum := 0
+	for _, cardCount := range cards {
+		sum += cardCount
+	}
+	slog.Info("Part 2:", "total cards", sum)
+}
+
+func part1(counts map[int]int, wg *sync.WaitGroup) {
 	defer wg.Done()
 	points := 0
-	counts := countWinningNumbers(file)
 	for _, count := range counts {
 		points += int(math.Pow(2, float64(count-1)))
 	}
-	slog.Info("Total Points:", "points", points)
+	slog.Info("Part 1:", "total points", points)
 }
 
-func countWinningNumbers(file *os.File) map[string]int {
-	counts := make(map[string]int)
+func countWinningNumbers(file *os.File) map[int]int {
+	counts := make(map[int]int)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
 		s := strings.Split(line, ":")
-		cardId := rexpDigits.FindString(s[0])
+		cardId, err := strconv.Atoi(rexpDigits.FindString(s[0]))
+		if err != nil {
+			panic(err)
+		}
 		s = strings.Split(s[1], "|")
 		winningNums := rexpDigits.FindAllString(s[0], -1)
 		myNums := rexpDigits.FindAllString(s[1], -1)
