@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"log/slog"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -39,6 +40,60 @@ func main() {
 		puzzle = append(puzzle, strings.Split(line, ""))
 	}
 
+	part1(puzzle)
+	part2(puzzle)
+}
+
+func part2(puzzle [][]string) {
+	// M.S
+	// .A.
+	// M.S
+	// M.S.A.M.S
+
+	// S.S
+	// .A.
+	// M.M
+	// S.S.A.M.M
+
+	// S.M
+	// .A.
+	// S.M
+	// S.M.A.S.M
+
+	// M.M
+	// .A.
+	// S.S
+	// M.M.A.S.S
+
+	rexpMSAMS := regexp.MustCompile(`M.S.A.M.S`)
+	rexpSSAMM := regexp.MustCompile(`S.S.A.M.M`)
+	rexpSMASM := regexp.MustCompile(`S.M.A.S.M`)
+	rexpMMASS := regexp.MustCompile(`M.M.A.S.S`)
+
+	count := 0
+	for y := range len(puzzle) - 2 {
+		for x := range len(puzzle[y]) - 2 {
+			block := getBlock(x, y, 3, puzzle)
+			if rexpMSAMS.MatchString(block) || rexpSSAMM.MatchString(block) || rexpSMASM.MatchString(block) || rexpMMASS.MatchString(block) {
+				count++
+			}
+		}
+	}
+	slog.Info("Part 2:", "count", count)
+}
+
+func getBlock(x int, y int, n int, puzzle [][]string) string {
+	block := ""
+	for j := range n {
+		for i := range n {
+			block += puzzle[y+j][x+i]
+		}
+	}
+	//slog.Info("getBlock:", "block", block)
+	return block
+}
+
+func part1(puzzle [][]string) {
 	word := "XMAS"
 	count := 0
 	for y := range len(puzzle) {
