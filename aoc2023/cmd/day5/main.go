@@ -1,13 +1,14 @@
 package main
 
 import (
-	"aoc2023"
 	"bufio"
 	"log/slog"
 	"math"
 	"os"
 	"regexp"
 	"strconv"
+
+	"github.com/ngucandy/advent-of-code/aoc2023"
 )
 
 var (
