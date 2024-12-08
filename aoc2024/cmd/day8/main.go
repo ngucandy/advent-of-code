@@ -16,7 +16,7 @@ func main() {
 	}(file)
 
 	rexpFrequency := regexp.MustCompile(`[a-zA-Z\d]`)
-	index := make(map[rune][][]int)
+	index := make(map[rune][][2]int)
 	grid := [][]rune{}
 	scanner := bufio.NewScanner(file)
 	y := 0
@@ -27,17 +27,44 @@ func main() {
 		for _, location := range locations {
 			frequency := rune(line[location[0]])
 			if _, ok := index[frequency]; !ok {
-				index[frequency] = make([][]int, 0)
+				index[frequency] = make([][2]int, 0)
 			}
-			index[frequency] = append(index[frequency], []int{location[0], y})
+			index[frequency] = append(index[frequency], [2]int{location[0], y})
 		}
 		y++
 	}
 
 	part1(grid, index)
+	part2(grid, index)
 }
 
-func part1(grid [][]rune, index map[rune][][]int) {
+func part2(grid [][]rune, index map[rune][][2]int) {
+	total := 0
+
+	antinodes := make(map[[2]int]bool)
+	for _, nodes := range index {
+		for i, node1 := range nodes[:len(nodes)-1] {
+			for _, node2 := range nodes[i+1:] {
+				dx, dy := subtract(node1, node2)
+				for antinode := add(node1, -dx, -dy); !isOutOfBounds(antinode, grid); antinode = add(antinode, -dx, -dy) {
+					antinodes[antinode] = true
+				}
+				for antinode := add(node2, dx, dy); !isOutOfBounds(antinode, grid); antinode = add(antinode, dx, dy) {
+					antinodes[antinode] = true
+				}
+				antinodes[node1] = true
+				antinodes[node2] = true
+			}
+		}
+	}
+
+	for range antinodes {
+		total++
+	}
+	slog.Info("Part 2:", "total", total)
+}
+
+func part1(grid [][]rune, index map[rune][][2]int) {
 	total := 0
 
 	antinodes := make(map[[2]int]bool)
@@ -53,7 +80,6 @@ func part1(grid [][]rune, index map[rune][][]int) {
 				if !isOutOfBounds(antinode2, grid) {
 					antinodes[antinode2] = true
 				}
-				slog.Info("Antinodes:", "node1", node1, "node2", node2, "antinode1", antinode1, "antinode2", antinode2)
 			}
 		}
 	}
@@ -64,11 +90,11 @@ func part1(grid [][]rune, index map[rune][][]int) {
 	slog.Info("Part 1:", "total", total)
 }
 
-func subtract(point1 []int, point2 []int) (int, int) {
+func subtract(point1 [2]int, point2 [2]int) (int, int) {
 	return point2[0] - point1[0], point2[1] - point1[1]
 }
 
-func add(point []int, dx, dy int) [2]int {
+func add(point [2]int, dx, dy int) [2]int {
 	return [2]int{point[0] + dx, point[1] + dy}
 }
 
