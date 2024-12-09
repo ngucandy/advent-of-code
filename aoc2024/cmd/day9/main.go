@@ -20,21 +20,60 @@ func main() {
 		input = scanner.Text()
 	}
 
+	freeBlocks := [][2]int{}
+	fileBlocks := [][2]int{}
 	blocks := []int{}
+	ii := 0
 	for i, r := range input {
 		n := int(r - '0')
-		id := i / 2
-		if i%2 == 1 {
+		var id int
+		if i%2 == 1 { // free block
 			id = -1
+			freeBlocks = append(freeBlocks, [2]int{ii, n})
+		} else { // file block
+			id = i / 2
+			fileBlocks = append(fileBlocks, [2]int{ii, n})
 		}
 		for range n {
 			blocks = append(blocks, id)
+			ii++
 		}
 	}
 
-	slog.Info("Mapped blocks:", "input", input, "blocks", blocks)
-
 	part1(blocks)
+	part2(fileBlocks, freeBlocks)
+}
+
+func part2(fileBlocks [][2]int, freeBlocks [][2]int) {
+	sum := 0
+
+	for id := len(fileBlocks) - 1; id > 0; id-- {
+		// find free block big enough to hold file
+		for i, freeBlock := range freeBlocks {
+			if freeBlock[0] > fileBlocks[id][0] { // free block isn't left of file
+				break
+			}
+			if freeBlock[1] < fileBlocks[id][1] { // too small
+				continue
+			}
+			if freeBlock[1] == fileBlocks[id][1] { // exact fit
+				fileBlocks[id] = freeBlock
+				freeBlocks = append(freeBlocks[:i], freeBlocks[i+1:]...)
+				break
+			}
+			// free block is bigger than file
+			fileBlocks[id][0] = freeBlock[0]
+			freeBlocks[i][0] += fileBlocks[id][1]
+			freeBlocks[i][1] -= fileBlocks[id][1]
+		}
+	}
+
+	for id, fileBlock := range fileBlocks {
+		for i := range fileBlock[1] {
+			sum += id * (fileBlock[0] + i)
+		}
+	}
+	slog.Info("Part 2:", "sum", sum)
 }
 
 func part1(blocks []int) {
@@ -53,11 +92,9 @@ func part1(blocks []int) {
 		if i >= j {
 			break
 		}
-		//slog.Info("Moving block:", "id", blocks[j], "i", i, "j", j)
 		blocks[i] = blocks[j]
 		blocks[j] = -1
 	}
-	//slog.Info("Finished moving:", "blocks", blocks)
 
 	for i, id := range blocks {
 		if id < 0 {
