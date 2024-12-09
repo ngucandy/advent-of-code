@@ -1,4 +1,4 @@
-package aoc2024
+package helpers
 
 // CartesianProduct computes the Cartesian product of `sets`, where each set is represented as a slice.
 func CartesianProduct[T any](sets [][]T) (result [][]T) {

@@ -1,4 +1,4 @@
-package aoc2024
+package helpers
 
 import (
 	"reflect"
