@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/mowshon/iterium"
+	"github.com/ngucandy/advent-of-code/aoc2024"
 )
 
 func main() {
@@ -41,7 +41,7 @@ func part1(equations [][]int) {
 	total := 0
 	for _, equation := range equations {
 		nNeededOperators := len(equation[1:]) - 1
-		permutations, _ := iterium.Product(validOperators, nNeededOperators).Slice()
+		permutations := aoc2024.CartesianProductN(validOperators, nNeededOperators)
 		for _, permutation := range permutations {
 			if equation[0] == compute(equation[1:], permutation) {
 				total += equation[0]
@@ -57,7 +57,7 @@ func part2(equations [][]int) {
 	total := 0
 	for _, equation := range equations {
 		nNeededOperators := len(equation[1:]) - 1
-		permutations, _ := iterium.Product(validOperators, nNeededOperators).Slice()
+		permutations := aoc2024.CartesianProductN(validOperators, nNeededOperators)
 		for _, permutation := range permutations {
 			if equation[0] == compute(equation[1:], permutation) {
 				total += equation[0]
