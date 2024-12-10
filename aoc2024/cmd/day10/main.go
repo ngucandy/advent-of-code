@@ -60,7 +60,7 @@ func part2(tmap [][]int, trailHeads [][2]int, trailEnds [][2]int) {
 
 	for _, trailHead := range trailHeads {
 		for _, trailEnd := range trailEnds {
-			total += countPaths(trailHead, trailEnd, tmap)
+			total += countPaths(trailHead, trailEnd, tmap, make(map[[2][2]int]int))
 		}
 	}
 	slog.Info("Part 2:", "total", total)
@@ -93,9 +93,12 @@ func isReachable(start [2]int, end [2]int, tmap [][]int) bool {
 	return false
 }
 
-func countPaths(start [2]int, end [2]int, tmap [][]int) int {
+func countPaths(start [2]int, end [2]int, tmap [][]int, cache map[[2][2]int]int) int {
 	if start == end {
 		return 1
+	}
+	if n, ok := cache[[2][2]int{start, end}]; ok {
+		return n
 	}
 	n := 0
 	for _, dir := range dirs {
@@ -106,7 +109,8 @@ func countPaths(start [2]int, end [2]int, tmap [][]int) int {
 		if tmap[next[1]][next[0]]-tmap[start[1]][start[0]] != 1 {
 			continue
 		}
-		n += countPaths(next, end, tmap)
+		n += countPaths(next, end, tmap, cache)
 	}
+	cache[[2][2]int{start, end}] = n
 	return n
 }
