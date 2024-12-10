@@ -38,6 +38,7 @@ func main() {
 	}
 
 	part1(times, distances)
+	part2(times, distances)
 }
 
 func part1(times []int, distances []int) {
@@ -56,4 +57,29 @@ func part1(times []int, distances []int) {
 	}
 
 	slog.Info("Part 1:", "answer", ans)
+}
+
+func part2(times []int, distances []int) {
+	ans := 0
+
+	s := ""
+	for _, time := range times {
+		s += strconv.Itoa(time)
+	}
+	time, _ := strconv.Atoi(s)
+
+	s = ""
+	for _, distance := range distances {
+		s += strconv.Itoa(distance)
+	}
+	distance, _ := strconv.Atoi(s)
+
+	for speed := range time {
+		duration := time - speed
+		if (speed * duration) > distance {
+			ans++
+		}
+	}
+
+	slog.Info("Part 2:", "answer", ans)
 }
