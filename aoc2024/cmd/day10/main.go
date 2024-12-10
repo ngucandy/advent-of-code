@@ -24,18 +24,12 @@ func main() {
 		}
 		m = append(m, row)
 	}
-	part1(m)
-	part2(m)
-}
-
-func part1(tmap [][]int) {
-	total := 0
 
 	trailHeads := [][2]int{}
 	trailEnds := [][2]int{}
-	for y := 0; y < len(tmap); y++ {
-		for x := 0; x < len(tmap[y]); x++ {
-			switch tmap[y][x] {
+	for y := 0; y < len(m); y++ {
+		for x := 0; x < len(m[y]); x++ {
+			switch m[y][x] {
 			case 0:
 				trailHeads = append(trailHeads, [2]int{x, y})
 			case 9:
@@ -43,6 +37,13 @@ func part1(tmap [][]int) {
 			}
 		}
 	}
+
+	part1(m, trailHeads, trailEnds)
+	part2(m, trailHeads, trailEnds)
+}
+
+func part1(tmap [][]int, trailHeads [][2]int, trailEnds [][2]int) {
+	total := 0
 
 	for _, trailHead := range trailHeads {
 		for _, trailEnd := range trailEnds {
@@ -54,21 +55,8 @@ func part1(tmap [][]int) {
 	slog.Info("Part 1:", "total", total)
 }
 
-func part2(tmap [][]int) {
+func part2(tmap [][]int, trailHeads [][2]int, trailEnds [][2]int) {
 	total := 0
-
-	trailHeads := [][2]int{}
-	trailEnds := [][2]int{}
-	for y := 0; y < len(tmap); y++ {
-		for x := 0; x < len(tmap[y]); x++ {
-			switch tmap[y][x] {
-			case 0:
-				trailHeads = append(trailHeads, [2]int{x, y})
-			case 9:
-				trailEnds = append(trailEnds, [2]int{x, y})
-			}
-		}
-	}
 
 	for _, trailHead := range trailHeads {
 		for _, trailEnd := range trailEnds {
