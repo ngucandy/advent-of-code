@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -22,9 +23,16 @@ func main() {
 	input := strings.Split(line, " ")
 
 	part1(input)
+	part2(input)
+}
+
+func timeTrack(start time.Time, name string) {
+	elapsed := time.Since(start)
+	slog.Info("Time:", "name", name, "took", elapsed)
 }
 
 func part1(input []string) {
+	defer timeTrack(time.Now(), "Part 1")
 	stones := input
 
 	for range 25 {
@@ -47,4 +55,44 @@ func part1(input []string) {
 	}
 
 	slog.Info("Part 1:", "stones", len(stones))
+}
+
+func part2(input []string) {
+	defer timeTrack(time.Now(), "Part 2")
+
+	stones := make([]int, 0, len(input))
+	for _, stone := range input {
+		n, _ := strconv.Atoi(stone)
+		stones = append(stones, n)
+	}
+
+	count := 0
+	cache := make(map[[2]int]int)
+	for _, stone := range stones {
+		count += blink(stone, 75, cache)
+	}
+	slog.Info("Part 2:", "stones", count)
+}
+
+func blink(stone int, times int, cache map[[2]int]int) int {
+	if times == 0 {
+		return 1
+	}
+	if count, ok := cache[[2]int{stone, times}]; ok {
+		return count
+	}
+
+	if stone == 0 {
+		cache[[2]int{stone, times}] = blink(1, times-1, cache)
+		return cache[[2]int{stone, times}]
+	}
+	s := strconv.Itoa(stone)
+	if len(s)%2 == 0 {
+		n1, _ := strconv.Atoi(s[:len(s)/2])
+		n2, _ := strconv.Atoi(s[len(s)/2:])
+		cache[[2]int{stone, times}] = blink(n1, times-1, cache) + blink(n2, times-1, cache)
+		return cache[[2]int{stone, times}]
+	}
+	cache[[2]int{stone, times}] = blink(stone*2024, times-1, cache)
+	return cache[[2]int{stone, times}]
 }
