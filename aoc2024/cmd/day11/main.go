@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 )
 
 func main() {
@@ -26,13 +28,8 @@ func main() {
 	part2(input)
 }
 
-func timeTrack(start time.Time, name string) {
-	elapsed := time.Since(start)
-	slog.Info("Time:", "name", name, "took", elapsed)
-}
-
 func part1(input []string) {
-	defer timeTrack(time.Now(), "Part 1")
+	defer helpers.TrackTime(time.Now(), "Part 1")
 	stones := input
 
 	for range 25 {
@@ -58,7 +55,7 @@ func part1(input []string) {
 }
 
 func part2(input []string) {
-	defer timeTrack(time.Now(), "Part 2")
+	defer helpers.TrackTime(time.Now(), "Part 2")
 
 	stones := make([]int, 0, len(input))
 	for _, stone := range input {
