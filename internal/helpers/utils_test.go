@@ -32,9 +32,12 @@ func TestCartesianProduct(t *testing.T) {
 		{
 			name: "two sets",
 			args: args[string]{
-				sets: [][]string{{"a", "b"}, {"a", "b"}},
+				sets: [][]string{{"a", "b"}, {"a", "b", "c"}},
 			},
-			wantResult: [][]string{{"a", "a"}, {"a", "b"}, {"b", "a"}, {"b", "b"}},
+			wantResult: [][]string{
+				{"a", "a"}, {"a", "b"}, {"a", "c"},
+				{"b", "a"}, {"b", "b"}, {"b", "c"},
+			},
 		},
 		{
 			name: "3 sets",
@@ -50,6 +53,20 @@ func TestCartesianProduct(t *testing.T) {
 				{"b", "a", "b"},
 				{"b", "b", "a"},
 				{"b", "b", "b"},
+			},
+		},
+		{
+			name: "3 different sets",
+			args: args[string]{
+				sets: [][]string{{"a"}, {"a", "b"}, {"a", "b", "c"}},
+			},
+			wantResult: [][]string{
+				{"a", "a", "a"},
+				{"a", "a", "b"},
+				{"a", "a", "c"},
+				{"a", "b", "a"},
+				{"a", "b", "b"},
+				{"a", "b", "c"},
 			},
 		},
 	}
