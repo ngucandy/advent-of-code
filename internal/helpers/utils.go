@@ -1,5 +1,10 @@
 package helpers
 
+import (
+	"log/slog"
+	"time"
+)
+
 // CartesianProduct computes the Cartesian product of `sets`, where each set is represented as a slice.
 func CartesianProduct[T any](sets [][]T) (result [][]T) {
 	// Base case: If there are no sets, return an empty slice
@@ -32,4 +37,9 @@ func CartesianProductN[T any](set []T, n int) (result [][]T) {
 		sets = append(sets, set)
 	}
 	return CartesianProduct(sets)
+}
+
+func TrackTime(start time.Time, name string) {
+	elapsed := time.Since(start)
+	slog.Info("Time:", "name", name, "took", elapsed)
 }
