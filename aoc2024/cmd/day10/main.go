@@ -4,6 +4,10 @@ import (
 	"bufio"
 	"log/slog"
 	"os"
+	"sync"
+	"time"
+
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 )
 
 func main() {
@@ -43,6 +47,7 @@ func main() {
 }
 
 func part1(tmap [][]int, trailHeads [][2]int, trailEnds [][2]int) {
+	defer helpers.TrackTime(time.Now(), "Part 1")
 	total := 0
 
 	for _, trailHead := range trailHeads {
@@ -56,15 +61,31 @@ func part1(tmap [][]int, trailHeads [][2]int, trailEnds [][2]int) {
 }
 
 func part2(tmap [][]int, trailHeads [][2]int, trailEnds [][2]int) {
+	defer helpers.TrackTime(time.Now(), "Part 2")
 	total := 0
+
+	ch := make(chan int)
+	wg := sync.WaitGroup{}
+	wg.Add(len(trailHeads) * len(trailEnds))
+	go func() {
+		for count := range ch {
+			total += count
+		}
+	}()
 
 	for _, trailHead := range trailHeads {
 		for _, trailEnd := range trailEnds {
-			total += countPaths(trailHead, trailEnd, tmap, make(map[[2][2]int]int))
+			//total += countPaths(trailHead, trailEnd, tmap, make(map[[2][2]int]int))
+			go func() {
+				defer wg.Done()
+				ch <- countPaths(trailHead, trailEnd, tmap, make(map[[2][2]int]int))
+			}()
 		}
 	}
-	slog.Info("Part 2:", "total", total)
+	wg.Wait()
+	close(ch)
 
+	slog.Info("Part 2:", "total", total)
 }
 
 var dirs = [4][2]int{
