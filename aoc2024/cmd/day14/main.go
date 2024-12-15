@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log/slog"
 	"os"
 	"regexp"
@@ -16,7 +17,7 @@ func main() {
 		_ = file.Close()
 	}(file)
 
-	// p=92,72 v=-49,-72
+	// e.g., p=92,72 v=-49,-72
 	rexpNums := regexp.MustCompile(`-?\d+`)
 	robots := [][2][2]int{}
 	scanner := bufio.NewScanner(file)
@@ -32,6 +33,7 @@ func main() {
 	}
 
 	part1(robots)
+	part2(robots)
 }
 
 func part1(robots [][2][2]int) {
@@ -68,7 +70,6 @@ func part1(robots [][2][2]int) {
 		if negyvel {
 			endy = rows - endy - 1
 		}
-		slog.Info("Robot:", "robot", robot, "endx", endx, "endy", endy)
 
 		if endx == cols/2 || endy == rows/2 {
 			continue
@@ -91,4 +92,73 @@ func part1(robots [][2][2]int) {
 		}
 	}
 	slog.Info("Part 1:", "safety factor", q1*q2*q3*q4, "q1", q1, "q2", q2, "q3", q3, "q4", q4)
+}
+
+func part2(robots [][2][2]int) {
+	rows := 103
+	cols := 101
+	seconds := 0
+	for {
+		seconds++
+		graph := make([][]string, rows)
+		for row := 0; row < rows; row++ {
+			graph[row] = make([]string, cols)
+			for col := 0; col < cols; col++ {
+				graph[row][col] = "."
+			}
+		}
+		cluster := false
+		for _, robot := range robots {
+			startx := robot[0][0]
+			starty := robot[0][1]
+			velx := robot[1][0]
+			vely := robot[1][1]
+			negxvel := false
+			negyvel := false
+
+			if velx < 0 {
+				startx = cols - startx - 1
+				velx = -velx
+				negxvel = true
+			}
+			if vely < 0 {
+				starty = rows - starty - 1
+				vely = -vely
+				negyvel = true
+			}
+			endx := (velx*seconds + startx) % cols
+			endy := (vely*seconds + starty) % rows
+			if negxvel {
+				endx = cols - endx - 1
+			}
+			if negyvel {
+				endy = rows - endy - 1
+			}
+			graph[endy][endx] = "#"
+
+			// look for a robot surrounded by robots on all sides
+			localcluster := true
+			for _, dir := range [][2]int{{-1, 0}, {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}} {
+				neighborx := endx + dir[0]
+				neighbory := endy + dir[1]
+				if neighborx < 0 || neighborx >= cols || neighbory < 0 || neighbory >= rows {
+					localcluster = false
+					break
+				}
+				if graph[neighbory][neighborx] != "#" {
+					localcluster = false
+					break
+				}
+			}
+			cluster = cluster || localcluster
+		}
+
+		if cluster {
+			for _, row := range graph {
+				fmt.Println(row)
+			}
+			break
+		}
+	}
+	slog.Info("Part 2:", "seconds", seconds)
 }
