@@ -38,7 +38,12 @@ func main() {
 		}
 	}
 
-	//part1(grid, movements, start)
+	gridCopy := make([][]rune, len(grid))
+	for i := range grid {
+		gridCopy[i] = make([]rune, len(grid[i]))
+		copy(gridCopy[i], grid[i])
+	}
+	part1(gridCopy, movements, start)
 	part2(grid, movements, start)
 }
 
@@ -58,12 +63,10 @@ func part2(grid [][]rune, movements string, start [2]int) {
 			if isBlocked(x, y, dir, grid) {
 				continue
 			}
-			moveUpOrDown(x, y, dir, grid, make(map[[2]int]bool))
+			moveUpOrDown(x, y, dir, grid)
 			x += directions[dir][0]
 			y += directions[dir][1]
 		}
-		//fmt.Println("Move ", string([]rune{dir}))
-		//printGrid(grid)
 	}
 	printGrid(grid)
 
@@ -82,99 +85,96 @@ func part2(grid [][]rune, movements string, start [2]int) {
 	slog.Info("Part 2:", "sum", sum)
 }
 
-func moveUpOrDown(x int, y int, dir rune, grid [][]rune, moved map[[2]int]bool) {
-	if _, ok := moved[[2]int{x, y}]; ok {
-		return
-	}
+func moveUpOrDown(x int, y int, dir rune, grid [][]rune) {
 	nextY := y + directions[dir][1]
-	if grid[y][x] == '.' {
-		return
-	}
+	// move the robot
 	if grid[y][x] == '@' {
 		switch grid[nextY][x] {
+		// unobstructed
 		case '.':
 			grid[nextY][x] = '@'
 			grid[y][x] = '.'
 			return
+		// obstructed by [-side of box
 		case '[':
-			moveUpOrDown(x, nextY, dir, grid, moved)
-			moveUpOrDown(x+1, nextY, dir, grid, moved)
+			moveUpOrDown(x, nextY, dir, grid)
 			grid[nextY][x] = '@'
-			grid[nextY][x+1] = '.'
 			grid[y][x] = '.'
-			moved[[2]int{x, nextY}] = true
 			return
+		// obstructed by ]-side of box
 		case ']':
-			printGrid(grid)
-			moveUpOrDown(x, nextY, dir, grid, moved)
-			printGrid(grid)
-			moveUpOrDown(x-1, nextY, dir, grid, moved)
-			printGrid(grid)
+			// always use coordinate of [-side of box
+			moveUpOrDown(x-1, nextY, dir, grid)
 			grid[nextY][x] = '@'
-			grid[nextY][x-1] = '.'
 			grid[y][x] = '.'
-			moved[[2]int{x, nextY}] = true
 			return
 		default:
 			panic(fmt.Sprint(x, y, dir, grid))
 		}
 	}
-	if grid[y][x] == '[' {
-		switch grid[nextY][x] {
-		case '.':
-			grid[nextY][x] = '['
-			grid[y][x] = '.'
-			moved[[2]int{x, nextY}] = true
-			printGrid(grid)
-			moveUpOrDown(x+1, y, dir, grid, moved)
-			printGrid(grid)
-			return
-		case '[':
-			moveUpOrDown(x, nextY, dir, grid, moved)
-			printGrid(grid)
-			moveUpOrDown(x+1, nextY, dir, grid, moved)
-			printGrid(grid)
-			return
-		case ']':
-			moveUpOrDown(x, nextY, dir, grid, moved)
-			printGrid(grid)
-			moveUpOrDown(x-1, nextY, dir, grid, moved)
-			printGrid(grid)
-			moveUpOrDown(x+1, nextY, dir, grid, moved)
-			printGrid(grid)
-			return
-		default:
-			panic(fmt.Sprint(x, y, dir, grid))
-		}
+	// move a box
+
+	// box is unobstructed
+	// e.g., direction ^
+	// ....
+	//  []
+	if grid[nextY][x] == '.' && grid[nextY][x+1] == '.' {
+		grid[nextY][x] = '['
+		grid[nextY][x+1] = ']'
+		grid[y][x] = '.'
+		grid[y][x+1] = '.'
+		return
 	}
-	if grid[y][x] == ']' {
-		switch grid[nextY][x] {
-		case '.':
-			grid[nextY][x] = ']'
-			grid[y][x] = '.'
-			moved[[2]int{x, nextY}] = true
-			printGrid(grid)
-			moveUpOrDown(x-1, y, dir, grid, moved)
-			printGrid(grid)
-			return
-		case '[':
-			moveUpOrDown(x, nextY, dir, grid, moved)
-			printGrid(grid)
-			moveUpOrDown(x+1, nextY, dir, grid, moved)
-			printGrid(grid)
-			moveUpOrDown(x-1, nextY, dir, grid, moved)
-			printGrid(grid)
-			return
-		case ']':
-			moveUpOrDown(x, nextY, dir, grid, moved)
-			printGrid(grid)
-			moveUpOrDown(x-1, nextY, dir, grid, moved)
-			printGrid(grid)
-			return
-		default:
-			panic(fmt.Sprint(x, y, dir, grid))
-		}
+
+	// box is obstructed by two boxes
+	// e.g., direction ^
+	// [][]
+	// .[].
+	if grid[nextY][x] == ']' && grid[nextY][x+1] == '[' {
+		moveUpOrDown(x-1, nextY, dir, grid)
+		moveUpOrDown(x+1, nextY, dir, grid)
+		grid[nextY][x] = '['
+		grid[nextY][x+1] = ']'
+		grid[y][x] = '.'
+		grid[y][x+1] = '.'
+		return
 	}
+
+	// box obstructed by right half of one box
+	// e.g., direction ^
+	// []..
+	// .[].
+	if grid[nextY][x] == ']' && grid[nextY][x+1] == '.' {
+		moveUpOrDown(x-1, nextY, dir, grid)
+		grid[nextY][x] = '['
+		grid[nextY][x+1] = ']'
+		grid[y][x] = '.'
+		grid[y][x+1] = '.'
+		return
+	}
+
+	// box obstructed by left half of one box
+	// e.g., direction ^
+	// ..[]
+	// .[].
+	if grid[nextY][x] == '.' && grid[nextY][x+1] == '[' {
+		moveUpOrDown(x+1, nextY, dir, grid)
+		grid[nextY][x] = '['
+		grid[nextY][x+1] = ']'
+		grid[y][x] = '.'
+		grid[y][x+1] = '.'
+		return
+	}
+
+	// box is obstructed by box directly aligned
+	// e.g., direction ^
+	// .[].
+	// .[].
+	moveUpOrDown(x, nextY, dir, grid)
+	grid[nextY][x] = '['
+	grid[nextY][x+1] = ']'
+	grid[y][x] = '.'
+	grid[y][x+1] = '.'
 }
 
 func isBlocked(x int, y int, dir rune, grid [][]rune) bool {
@@ -214,7 +214,6 @@ func expandGrid(grid [][]rune) [][]rune {
 }
 
 func part1(grid [][]rune, movements string, start [2]int) {
-	fmt.Println(start, movements)
 	printGrid(grid)
 	x := start[0]
 	y := start[1]
