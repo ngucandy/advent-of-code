@@ -7,9 +7,9 @@ import (
 	"math"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 func main() {
@@ -79,41 +79,33 @@ func part1(program []int, register map[string]int) {
 	slog.Info("Part 1: ", "output", strings.Join(output, ","))
 }
 
-func part2(program []int, _ map[string]int) {
-	minA := 1_200_000_000
-	maxA := minA + 100_000_000
-	wg := &sync.WaitGroup{}
-	wg.Add(maxA - minA)
-	for a := minA; a < maxA; a++ {
-		go func(val int) {
+func part2(program []int, register map[string]int) {
+	a := 0
+	for i := len(program) - 1; i >= 0; i-- {
+		a <<= 3
+		var output []int
+		for {
 			ip := 0
-			i := 0
-			output := []int{}
-			register := make(map[string]int)
-			register[A] = val
+			register[A] = a
 			register[B] = 0
 			register[C] = 0
 			for ip < len(program) {
 				nextIp, s := opMap[program[ip]](program[ip+1], register, ip)
 				if len(s) > 0 {
 					n, _ := strconv.Atoi(s)
-					if n != program[i] {
-						break
-					}
 					output = append(output, n)
-					i++
-					if i == len(program) {
-						slog.Info("Part 2: ", "output", output, "a", val)
-						//a = maxA
-						break
-					}
 				}
 				ip = nextIp
 			}
-			wg.Done()
-		}(a)
+			if slices.Equal(program[i:], output) {
+				break
+			}
+			a++
+			output = []int{}
+		}
+		fmt.Println(a, output)
 	}
-	wg.Wait()
+	slog.Info("Part 2: ", "a", a)
 }
 
 func adv(operand int, register map[string]int, ip int) (int, string) {
