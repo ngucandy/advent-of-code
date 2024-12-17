@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 func main() {
@@ -43,6 +44,7 @@ func main() {
 	}
 
 	part1(program, register)
+	part2(program, register)
 }
 
 const (
@@ -75,6 +77,43 @@ func part1(program []int, register map[string]int) {
 		ip = nextIp
 	}
 	slog.Info("Part 1: ", "output", strings.Join(output, ","))
+}
+
+func part2(program []int, _ map[string]int) {
+	minA := 1_200_000_000
+	maxA := minA + 100_000_000
+	wg := &sync.WaitGroup{}
+	wg.Add(maxA - minA)
+	for a := minA; a < maxA; a++ {
+		go func(val int) {
+			ip := 0
+			i := 0
+			output := []int{}
+			register := make(map[string]int)
+			register[A] = val
+			register[B] = 0
+			register[C] = 0
+			for ip < len(program) {
+				nextIp, s := opMap[program[ip]](program[ip+1], register, ip)
+				if len(s) > 0 {
+					n, _ := strconv.Atoi(s)
+					if n != program[i] {
+						break
+					}
+					output = append(output, n)
+					i++
+					if i == len(program) {
+						slog.Info("Part 2: ", "output", output, "a", val)
+						//a = maxA
+						break
+					}
+				}
+				ip = nextIp
+			}
+			wg.Done()
+		}(a)
+	}
+	wg.Wait()
 }
 
 func adv(operand int, register map[string]int, ip int) (int, string) {
