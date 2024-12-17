@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log/slog"
 	"os"
+	"slices"
 )
 
 func main() {
@@ -46,65 +48,50 @@ var directions = [][2]int{
 }
 
 func part1(maze [][]rune, s [2]int, e [2]int) {
-	_, cost := path(s, e, 0, 0, maze, make(map[[2]int]bool))
-	slog.Info("Part 1:", "cost", cost)
+	paths := steps(s, e, 0, maze, make(map[[2]int]bool))
+	slices.Sort(paths)
+	fmt.Println(paths)
 }
 
-func path(start [2]int, end [2]int, cost int, dir int, maze [][]rune, visited map[[2]int]bool) (bool, int) {
-	//fmt.Println(start, end, cost, directions[dir])
+func steps(start [2]int, end [2]int, dir int, maze [][]rune, visited map[[2]int]bool) []int {
 	if start == end {
-		return true, cost
+		return []int{0}
 	}
+
 	if maze[start[1]][start[0]] == '#' {
-		return false, 0
+		return []int{}
 	}
+
 	if visited[start] {
-		return false, 0
+		return []int{}
 	}
 
 	visited[start] = true
-	cost++
-
 	leftDir := (len(directions) + dir - 1) % len(directions)
 	rightDir := (dir + 1) % len(directions)
 	forward := [2]int{start[0] + directions[dir][0], start[1] + directions[dir][1]}
 	left := [2]int{start[0] + directions[leftDir][0], start[1] + directions[leftDir][1]}
 	right := [2]int{start[0] + directions[rightDir][0], start[1] + directions[rightDir][1]}
 
-	forwardSuccess, forwardCost := path(forward, end, cost, dir, maze, cloneMap(visited))
-	leftSuccess, leftCost := path(left, end, cost+1000, leftDir, maze, cloneMap(visited))
-	rightSuccess, rightCost := path(right, end, cost+1000, rightDir, maze, cloneMap(visited))
+	forwardSteps := steps(forward, end, dir, maze, visited)
+	leftSteps := steps(left, end, leftDir, maze, visited)
+	rightSteps := steps(right, end, rightDir, maze, visited)
 
-	if !forwardSuccess && !leftSuccess && !rightSuccess {
-		// dead end
-		return false, 0
+	if len(forwardSteps) == 0 && len(leftSteps) == 0 && len(rightSteps) == 0 {
+		visited[start] = false
+		return []int{}
 	}
 
-	if forwardSuccess {
-		if leftSuccess && rightSuccess {
-			return true, min(forwardCost, leftCost, rightCost)
-		}
-		if leftSuccess {
-			return true, min(forwardCost, leftCost)
-		}
-		if rightSuccess {
-			return true, min(forwardCost, rightCost)
-		}
-		return true, forwardCost
+	for i := range rightSteps {
+		rightSteps[i] += 1001
 	}
-	if leftSuccess {
-		if rightSuccess {
-			return true, min(leftCost, rightCost)
-		}
-		return true, leftCost
+	for i := range leftSteps {
+		leftSteps[i] += 1001
 	}
-	return true, rightCost
-}
-
-func cloneMap(m map[[2]int]bool) map[[2]int]bool {
-	c := make(map[[2]int]bool, len(m))
-	for k, v := range m {
-		c[k] = v
+	for i := range forwardSteps {
+		forwardSteps[i]++
 	}
-	return c
+	visited[start] = false
+	combined := append(forwardSteps, append(leftSteps, rightSteps...)...)
+	return combined
 }
