@@ -2,10 +2,9 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"container/heap"
 	"log/slog"
 	"os"
-	"slices"
 )
 
 func main() {
@@ -47,51 +46,66 @@ var directions = [][2]int{
 	{0, -1}, // north
 }
 
-func part1(maze [][]rune, s [2]int, e [2]int) {
-	paths := steps(s, e, 0, maze, make(map[[2]int]bool))
-	slices.Sort(paths)
-	fmt.Println(paths)
+type state [4]int
+
+type pqueue []state
+
+func (pq pqueue) Len() int {
+	return len(pq)
 }
 
-func steps(start [2]int, end [2]int, dir int, maze [][]rune, visited map[[2]int]bool) []int {
-	if start == end {
-		return []int{0}
-	}
+func (pq pqueue) Less(i, j int) bool {
+	return pq[i][0] < pq[j][0]
+}
 
-	if maze[start[1]][start[0]] == '#' {
-		return []int{}
-	}
+func (pq pqueue) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
 
-	if visited[start] {
-		return []int{}
-	}
+func (pq *pqueue) Push(x interface{}) {
+	*pq = append(*pq, x.(state))
+}
 
-	visited[start] = true
-	leftDir := (len(directions) + dir - 1) % len(directions)
-	rightDir := (dir + 1) % len(directions)
-	forward := [2]int{start[0] + directions[dir][0], start[1] + directions[dir][1]}
-	left := [2]int{start[0] + directions[leftDir][0], start[1] + directions[leftDir][1]}
-	right := [2]int{start[0] + directions[rightDir][0], start[1] + directions[rightDir][1]}
+func (pq *pqueue) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	x := old[n-1]
+	*pq = old[0 : n-1]
+	return x
+}
 
-	forwardSteps := steps(forward, end, dir, maze, visited)
-	leftSteps := steps(left, end, leftDir, maze, visited)
-	rightSteps := steps(right, end, rightDir, maze, visited)
+func part1(maze [][]rune, s [2]int, e [2]int) {
+	pq := pqueue{state{0, s[0], s[1], 0}}
+	seen := make(map[[3]int]bool)
+	heap.Init(&pq)
 
-	if len(forwardSteps) == 0 && len(leftSteps) == 0 && len(rightSteps) == 0 {
-		visited[start] = false
-		return []int{}
-	}
+	for len(pq) > 0 {
+		st := heap.Pop(&pq).(state)
+		cost := st[0]
+		cx := st[1]
+		cy := st[2]
+		cdir := st[3]
 
-	for i := range rightSteps {
-		rightSteps[i] += 1001
+		if [2]int{cx, cy} == e {
+			slog.Info("Part 1:", "cost", cost)
+			break
+		}
+		if seen[[3]int{cx, cy, cdir}] {
+			continue
+		}
+
+		seen[[3]int{cx, cy, cdir}] = true
+
+		ldir := (len(directions) + cdir - 1) % len(directions)
+		rdir := (cdir + 1) % len(directions)
+
+		forward := state{cost + 1, cx + directions[cdir][0], cy + directions[cdir][1], cdir}
+		left := state{cost + 1000, cx, cy, ldir}
+		right := state{cost + 1000, cx, cy, rdir}
+		if maze[forward[2]][forward[1]] != '#' {
+			heap.Push(&pq, forward)
+		}
+		heap.Push(&pq, left)
+		heap.Push(&pq, right)
 	}
-	for i := range leftSteps {
-		leftSteps[i] += 1001
-	}
-	for i := range forwardSteps {
-		forwardSteps[i]++
-	}
-	visited[start] = false
-	combined := append(forwardSteps, append(leftSteps, rightSteps...)...)
-	return combined
 }
