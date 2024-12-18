@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"container/heap"
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"log/slog"
+	"math"
 	"os"
 )
 
@@ -37,6 +39,7 @@ func main() {
 	}
 
 	part1(maze, s, e)
+	part2(maze, s, e)
 }
 
 var directions = [][2]int{
@@ -46,7 +49,13 @@ var directions = [][2]int{
 	{0, -1}, // north
 }
 
-type state [4]int
+type state struct {
+	cost      int
+	x         int
+	y         int
+	direction int
+	nodes     [][2]int
+}
 
 type pqueue []state
 
@@ -55,7 +64,7 @@ func (pq pqueue) Len() int {
 }
 
 func (pq pqueue) Less(i, j int) bool {
-	return pq[i][0] < pq[j][0]
+	return pq[i].cost < pq[j].cost
 }
 
 func (pq pqueue) Swap(i, j int) {
@@ -75,16 +84,16 @@ func (pq *pqueue) Pop() interface{} {
 }
 
 func part1(maze [][]rune, s [2]int, e [2]int) {
-	pq := pqueue{state{0, s[0], s[1], 0}}
+	pq := pqueue{state{0, s[0], s[1], 0, [][2]int{}}}
 	seen := make(map[[3]int]bool)
 	heap.Init(&pq)
 
 	for len(pq) > 0 {
 		st := heap.Pop(&pq).(state)
-		cost := st[0]
-		cx := st[1]
-		cy := st[2]
-		cdir := st[3]
+		cost := st.cost
+		cx := st.x
+		cy := st.y
+		cdir := st.direction
 
 		if [2]int{cx, cy} == e {
 			slog.Info("Part 1:", "cost", cost)
@@ -99,13 +108,76 @@ func part1(maze [][]rune, s [2]int, e [2]int) {
 		ldir := (len(directions) + cdir - 1) % len(directions)
 		rdir := (cdir + 1) % len(directions)
 
-		forward := state{cost + 1, cx + directions[cdir][0], cy + directions[cdir][1], cdir}
-		left := state{cost + 1000, cx, cy, ldir}
-		right := state{cost + 1000, cx, cy, rdir}
-		if maze[forward[2]][forward[1]] != '#' {
+		forward := state{cost + 1, cx + directions[cdir][0], cy + directions[cdir][1], cdir, st.nodes}
+		left := state{cost + 1000, cx, cy, ldir, st.nodes}
+		right := state{cost + 1000, cx, cy, rdir, st.nodes}
+		if maze[forward.y][forward.x] != '#' {
 			heap.Push(&pq, forward)
 		}
 		heap.Push(&pq, left)
 		heap.Push(&pq, right)
 	}
+}
+
+func part2(maze [][]rune, s [2]int, e [2]int) {
+	pq := pqueue{state{0, s[0], s[1], 0, [][2]int{}}}
+	seen := make(map[[3]int]int)
+	heap.Init(&pq)
+	bestCost := math.MaxInt
+	bestPaths := [][2]int{}
+
+	for len(pq) > 0 {
+		st := heap.Pop(&pq).(state)
+		cost := st.cost
+		cx := st.x
+		cy := st.y
+		cdir := st.direction
+
+		if [2]int{cx, cy} == e {
+			if cost > bestCost {
+				continue
+			}
+			if cost < bestCost {
+				bestCost = cost
+				bestPaths = make([][2]int, 0)
+			}
+			slog.Info("Path found:", "cost", cost, "count", len(st.nodes))
+			for _, node := range st.nodes {
+				maze[node[1]][node[0]] = 'O'
+			}
+			helpers.PrintGrid(maze)
+			for _, node := range st.nodes {
+				maze[node[1]][node[0]] = '.'
+			}
+			bestPaths = append(bestPaths, st.nodes...)
+			bestPaths = append(bestPaths, [2]int{cx, cy})
+			continue
+		}
+		if seenCost, ok := seen[[3]int{cx, cy, cdir}]; ok && seenCost != cost {
+			continue
+		}
+
+		seen[[3]int{cx, cy, cdir}] = cost
+
+		ldir := (len(directions) + cdir - 1) % len(directions)
+		rdir := (cdir + 1) % len(directions)
+
+		forward := state{cost + 1, cx + directions[cdir][0], cy + directions[cdir][1], cdir, append(st.nodes, [2]int{cx, cy})}
+		left := state{cost + 1000, cx, cy, ldir, append([][2]int{}, st.nodes...)}
+		right := state{cost + 1000, cx, cy, rdir, append([][2]int{}, st.nodes...)}
+		if maze[forward.y][forward.x] != '#' {
+			heap.Push(&pq, forward)
+		}
+		heap.Push(&pq, left)
+		heap.Push(&pq, right)
+	}
+
+	paths := make(map[[2]int]bool)
+	for _, path := range bestPaths {
+		paths[path] = true
+		maze[path[1]][path[0]] = 'O'
+	}
+	helpers.PrintGrid(maze)
+	slog.Info("Part 2:", "tiles", len(paths))
+
 }
