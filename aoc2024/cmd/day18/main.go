@@ -26,17 +26,16 @@ func main() {
 		grid = append(grid, row)
 	}
 
-	bytes := 1024
+	bytes := [][2]int{}
 	scanner := bufio.NewScanner(file)
-	for i := 0; i < bytes; i++ {
-		scanner.Scan()
+	for scanner.Scan() {
 		line := scanner.Text()
 		var x, y int
-		fmt.Sscanf(line, "%d,%d", &x, &y)
-		grid[y][x] = '#'
+		_, _ = fmt.Sscanf(line, "%d,%d", &x, &y)
+		bytes = append(bytes, [2]int{x, y})
 	}
-	printGrid(grid)
-	part1(grid)
+	part1(grid, bytes)
+	part2(grid, bytes)
 }
 
 type state [5]int
@@ -74,7 +73,8 @@ var directions = [][2]int{
 	{0, 1},
 }
 
-func part1(grid [][]rune) {
+func part1(grid [][]rune, bytes [][2]int) {
+	fall(grid, bytes, 1024)
 	pq := pqueue{state{0, 0, 0}}
 	seen := make(map[[2]int]bool)
 	heap.Init(&pq)
@@ -107,8 +107,52 @@ func part1(grid [][]rune) {
 	}
 }
 
-func printGrid(grid [][]rune) {
-	for _, row := range grid {
-		fmt.Println(string(row))
+func part2(grid [][]rune, bytes [][2]int) {
+	fall(grid, bytes, 1024)
+	for i := 1024; i < len(bytes); i++ {
+		grid[bytes[i][0]][bytes[i][1]] = '#'
+
+		pq := pqueue{state{0, 0, 0}}
+		seen := make(map[[2]int]bool)
+		heap.Init(&pq)
+		pathFound := false
+
+		for len(pq) > 0 {
+			st := heap.Pop(&pq).(state)
+			cost := st[0]
+			cx := st[1]
+			cy := st[2]
+
+			if cx == len(grid)-1 && cy == len(grid)-1 {
+				slog.Info("Found path to end:", "steps", cost)
+				pathFound = true
+				break
+			}
+
+			if seen[[2]int{cx, cy}] {
+				continue
+			}
+
+			seen[[2]int{cx, cy}] = true
+
+			for _, direction := range directions {
+				nx := cx + direction[0]
+				ny := cy + direction[1]
+				if nx < 0 || nx >= len(grid) || ny < 0 || ny >= len(grid) || grid[ny][nx] == '#' {
+					continue
+				}
+				heap.Push(&pq, state{cost + 1, nx, ny})
+			}
+		}
+		if !pathFound {
+			slog.Info("Part 2:", "byte", bytes[i])
+			break
+		}
+	}
+}
+
+func fall(grid [][]rune, bytes [][2]int, n int) {
+	for i := 0; i < n; i++ {
+		grid[bytes[i][0]][bytes[i][1]] = '#'
 	}
 }
