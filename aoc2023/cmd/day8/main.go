@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"log/slog"
 	"os"
 	"regexp"
+	"strings"
 )
 
 func main() {
@@ -30,13 +32,34 @@ func main() {
 	}
 
 	part1(instructions, elements)
+	part2(instructions, elements)
+}
+
+func part2(instructions string, elements map[string][2]string) {
+	steps := make([]int, 0)
+	for k := range elements {
+		if strings.HasSuffix(k, "A") {
+			steps = append(steps, countSteps(instructions, elements, k))
+		}
+	}
+	lcm := helpers.LCM(steps[0], steps[1], steps[2:]...)
+
+	slog.Info("Part 2:", "steps", steps, "lcm", lcm)
 }
 
 func part1(instructions string, elements map[string][2]string) {
+	steps := countSteps(instructions, elements, "AAA")
+	slog.Info("Part 1:", "steps", steps)
+}
+
+func countSteps(instructions string, elements map[string][2]string, start string) int {
 	steps := 0
-	current := "AAA"
-	for current != "ZZZ" {
+	current := start
+	for !strings.HasSuffix(current, "Z") {
 		for _, instruction := range instructions {
+			if strings.HasSuffix(current, "Z") {
+				break
+			}
 			switch instruction {
 			case 'L':
 				current = elements[current][0]
@@ -48,5 +71,5 @@ func part1(instructions string, elements map[string][2]string) {
 			steps++
 		}
 	}
-	slog.Info("Part 1:", "steps", steps)
+	return steps
 }
