@@ -70,43 +70,43 @@ func part2(patterns map[string]bool, designs []string) {
 	total := 0
 	cache := make(map[string][][]string)
 	for _, design := range designs {
-		possible := countPossible(design, patterns, cache)
-		total += len(possible)
-		slog.Info(design, "possible", possible)
+		combos := possibleCombos(design, patterns, cache)
+		total += len(combos)
+		slog.Info(design, "combos", combos)
 	}
 	slog.Info("Part 2:", "total", total)
 }
 
-func countPossible(design string, patterns map[string]bool, cache map[string][][]string) [][]string {
-	if count, ok := cache[design]; ok {
-		return count
+func possibleCombos(design string, patterns map[string]bool, cache map[string][][]string) [][]string {
+	if combos, ok := cache[design]; ok {
+		return combos
 	}
 	if patterns[design] {
 		cache[design] = [][]string{{design}}
 		return [][]string{{design}}
 	}
-	ans := make([][]string, 0)
+	combos := make([][]string, 0)
 	for i := 1; i < len(design); i++ {
-		left := countPossible(design[:i], patterns, cache)
-		right := countPossible(design[i:], patterns, cache)
+		left := possibleCombos(design[:i], patterns, cache)
+		right := possibleCombos(design[i:], patterns, cache)
 		if len(left) > 0 && len(right) > 0 {
 			for _, l := range left {
 				for _, r := range right {
-					combined := append(l, r...)
+					combo := append(l, r...)
 					duplicate := false
-					for _, a := range ans {
-						if slices.Equal(combined, a) {
+					for _, seen := range combos {
+						if slices.Equal(combo, seen) {
 							duplicate = true
 							break
 						}
 					}
 					if !duplicate {
-						ans = append(ans, combined)
+						combos = append(combos, combo)
 					}
 				}
 			}
 		}
 	}
-	cache[design] = ans
-	return ans
+	cache[design] = combos
+	return combos
 }
