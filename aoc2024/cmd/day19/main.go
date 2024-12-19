@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"log/slog"
 	"os"
-	"slices"
 	"strings"
 )
 
@@ -68,45 +67,28 @@ func isPossible(design string, patterns map[string]bool, cache map[string]bool) 
 
 func part2(patterns map[string]bool, designs []string) {
 	total := 0
-	cache := make(map[string][][]string)
+	cache := make(map[string]int)
 	for _, design := range designs {
-		combos := possibleCombos(design, patterns, cache)
-		total += len(combos)
-		slog.Info(design, "combos", combos)
+		count := countPossible(design, patterns, cache)
+		total += count
+		slog.Info(design, "count", count)
 	}
 	slog.Info("Part 2:", "total", total)
 }
 
-func possibleCombos(design string, patterns map[string]bool, cache map[string][][]string) [][]string {
-	if combos, ok := cache[design]; ok {
-		return combos
+func countPossible(design string, patterns map[string]bool, cache map[string]int) int {
+	if count, ok := cache[design]; ok {
+		return count
 	}
-	if patterns[design] {
-		cache[design] = [][]string{{design}}
-		return [][]string{{design}}
+	if len(design) == 0 {
+		return 1
 	}
-	combos := make([][]string, 0)
-	for i := 1; i < len(design); i++ {
-		left := possibleCombos(design[:i], patterns, cache)
-		right := possibleCombos(design[i:], patterns, cache)
-		if len(left) > 0 && len(right) > 0 {
-			for _, l := range left {
-				for _, r := range right {
-					combo := append(l, r...)
-					duplicate := false
-					for _, seen := range combos {
-						if slices.Equal(combo, seen) {
-							duplicate = true
-							break
-						}
-					}
-					if !duplicate {
-						combos = append(combos, combo)
-					}
-				}
-			}
+	count := 0
+	for i := 1; i <= len(design); i++ {
+		if _, ok := patterns[design[:i]]; ok {
+			count += countPossible(design[i:], patterns, cache)
 		}
 	}
-	cache[design] = combos
-	return combos
+	cache[design] = count
+	return count
 }
