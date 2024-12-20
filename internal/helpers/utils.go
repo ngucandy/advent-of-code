@@ -71,3 +71,10 @@ func LCM(a, b int, integers ...int) int {
 
 	return result
 }
+
+func AbsInt(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
