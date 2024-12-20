@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -18,6 +19,7 @@ func main() {
 }
 
 func part1(input string) {
+	defer helpers.TrackTime(time.Now(), "part1")
 	grid := make([][]rune, 0)
 	lines := strings.Split(input, "\n")
 	for _, line := range lines {
@@ -84,6 +86,7 @@ func part1(input string) {
 }
 
 func part2(input string) {
+	defer helpers.TrackTime(time.Now(), "part2")
 	grid := make([][]rune, 0)
 	lines := strings.Split(input, "\n")
 	for _, line := range lines {
