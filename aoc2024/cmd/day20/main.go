@@ -21,7 +21,7 @@ func main() {
 func part1(input string) {
 	defer helpers.TrackTime(time.Now(), "part1")
 	grid := make([][]rune, 0)
-	lines := strings.Split(input, "\n")
+	lines := strings.Split(strings.TrimSpace(input), "\n")
 	for _, line := range lines {
 		grid = append(grid, []rune(line))
 	}
@@ -88,7 +88,7 @@ func part1(input string) {
 func part2(input string) {
 	defer helpers.TrackTime(time.Now(), "part2")
 	grid := make([][]rune, 0)
-	lines := strings.Split(input, "\n")
+	lines := strings.Split(strings.TrimSpace(input), "\n")
 	for _, line := range lines {
 		grid = append(grid, []rune(line))
 	}
