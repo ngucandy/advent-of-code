@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	infile := os.Args[1]
 	slog.Info("Reading input file:", "name", infile)
 	bytes, _ := os.ReadFile(infile)
