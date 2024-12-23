@@ -47,6 +47,9 @@ func part1(input string) {
 				}
 				if slices.Contains(neighbors[node1], node3) {
 					tuple := []string{node1, node2, node3}
+					startsWithT := func(s string) bool {
+						return strings.HasPrefix(s, "t")
+					}
 					if slices.ContainsFunc(tuple, startsWithT) {
 						slices.Sort(tuple)
 						triples[[3]string{tuple[0], tuple[1], tuple[2]}] = true
@@ -59,8 +62,4 @@ func part1(input string) {
 }
 
 func part2(input string) {
-}
-
-func startsWithT(s string) bool {
-	return strings.HasPrefix(s, "t")
 }
