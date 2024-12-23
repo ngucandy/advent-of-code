@@ -62,4 +62,51 @@ func part1(input string) {
 }
 
 func part2(input string) {
+	neighbors := make(map[string][]string)
+	scanner := bufio.NewScanner(strings.NewReader(input))
+	for scanner.Scan() {
+		line := scanner.Text()
+		var left, right string
+		_, _ = fmt.Sscanf(line, "%2s-%2s", &left, &right)
+		neighbors[left] = append(neighbors[left], right)
+		neighbors[right] = append(neighbors[right], left)
+	}
+
+	for node := range neighbors {
+		slices.Sort(neighbors[node])
+		neighbors[node] = slices.Compact(neighbors[node])
+	}
+
+	maxSize := 0
+	var maxSet []string
+	for node := range neighbors {
+		connectedSet := getConnected(node, []string{node}, neighbors)
+		if len(connectedSet) > maxSize {
+			maxSize = len(connectedSet)
+			maxSet = connectedSet
+		}
+	}
+
+	slices.Sort(maxSet)
+	slog.Info("Part 2:", "set", strings.Join(maxSet, ","))
+}
+
+func getConnected(node string, others []string, neighbors map[string][]string) []string {
+	for _, neighbor := range neighbors[node] {
+		if slices.Contains(others, neighbor) {
+			continue
+		}
+		skip := false
+		for _, other := range others {
+			if !slices.Contains(neighbors[other], neighbor) {
+				skip = true
+				break
+			}
+		}
+		if skip {
+			continue
+		}
+		return getConnected(neighbor, append(others, neighbor), neighbors)
+	}
+	return others
 }
