@@ -35,7 +35,7 @@ func part1(input string) {
 		neighbors[node] = slices.Compact(neighbors[node])
 	}
 
-	triples := make(map[[3]string]bool)
+	triples := make(map[[3]string]struct{})
 	for node1 := range neighbors {
 		for _, node2 := range neighbors[node1] {
 			if node1 == node2 {
@@ -45,15 +45,17 @@ func part1(input string) {
 				if node2 == node3 {
 					continue
 				}
-				if slices.Contains(neighbors[node1], node3) {
-					tuple := []string{node1, node2, node3}
-					startsWithT := func(s string) bool {
-						return strings.HasPrefix(s, "t")
-					}
-					if slices.ContainsFunc(tuple, startsWithT) {
-						slices.Sort(tuple)
-						triples[[3]string{tuple[0], tuple[1], tuple[2]}] = true
-					}
+				// ensure node3 is connected to node1
+				if !slices.Contains(neighbors[node1], node3) {
+					continue
+				}
+				tuple := []string{node1, node2, node3}
+				startsWithT := func(s string) bool {
+					return strings.HasPrefix(s, "t")
+				}
+				if slices.ContainsFunc(tuple, startsWithT) {
+					slices.Sort(tuple)
+					triples[[3]string{tuple[0], tuple[1], tuple[2]}] = struct{}{}
 				}
 			}
 		}
