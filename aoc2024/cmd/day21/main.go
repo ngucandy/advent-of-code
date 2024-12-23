@@ -19,7 +19,6 @@ func main() {
 
 	part1(input)
 	part2(input)
-
 }
 
 var (
@@ -179,6 +178,80 @@ func part1(input string) {
 
 func part2(input string) {
 	total := 0
+	numpadPaths := make(map[string][]string)
+	for _, r1 := range "A0123456789" {
+		for _, r2 := range "A0123456789" {
+			numpadPaths[string(r1)+string(r2)] = shortestPaths(r1, r2, numpadGraph, numpadDirections)
+		}
+	}
 
+	dirpadPaths := make(map[string][]string)
+	for _, r1 := range "A^<v>" {
+		for _, r2 := range "A^<v>" {
+			dirpadPaths[string(r1)+string(r2)] = shortestPaths(r1, r2, dirpadGraph, dirpadDirections)
+		}
+	}
+
+	cache := make(map[[3]int]int)
+	scanner := bufio.NewScanner(strings.NewReader(input))
+	for scanner.Scan() {
+		numpadSequence := scanner.Text()
+		current := 'A'
+		output := make([][]string, 0)
+		for _, next := range numpadSequence {
+			output = append(output, numpadPaths[string(current)+string(next)])
+			current = next
+		}
+		dirpadSequences := make([]string, 0)
+		combos := helpers.CartesianProduct(output)
+		for _, combo := range combos {
+			dirpadSequences = append(dirpadSequences, strings.Join(combo, ""))
+		}
+
+		shortest := math.MaxInt
+		for _, seq := range dirpadSequences {
+			length := 0
+			current = 'A'
+			for _, next := range seq {
+				length += shortestLength(current, next, 25, dirpadPaths, cache)
+				current = next
+			}
+			if length > shortest {
+				continue
+			}
+			shortest = length
+		}
+		n, _ := strconv.Atoi(numpadSequence[:len(numpadSequence)-1])
+		complexity := n * shortest
+		total += complexity
+		fmt.Println(numpadSequence, n, shortest)
+
+	}
 	slog.Info("Part 2:", "total", total)
+}
+
+func shortestLength(start, end rune, depth int, paths map[string][]string, cache map[[3]int]int) int {
+	if depth == 1 {
+		return len(paths[string(start)+string(end)][0])
+	}
+	k := [3]int{int(start), int(end), depth}
+	if l, ok := cache[k]; ok {
+		return l
+	}
+
+	shortest := math.MaxInt
+	for _, path := range paths[string(start)+string(end)] {
+		length := 0
+		current := 'A'
+		for _, next := range path {
+			length += shortestLength(current, next, depth-1, paths, cache)
+			current = next
+		}
+		if length > shortest {
+			continue
+		}
+		shortest = length
+	}
+	cache[k] = shortest
+	return shortest
 }
