@@ -2,10 +2,13 @@ package main
 
 import (
 	"bufio"
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"log/slog"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 func main() {
@@ -19,6 +22,7 @@ func main() {
 }
 
 func part1(input string) {
+	defer helpers.TrackTime(time.Now(), "part1")
 	total := 0
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	for scanner.Scan() {
@@ -34,6 +38,7 @@ func part1(input string) {
 }
 
 func part2(input string) {
+	defer helpers.TrackTime(time.Now(), "part2")
 	times := 2000
 	buyerPrices := make([][]int, 0)
 	scanner := bufio.NewScanner(strings.NewReader(input))
@@ -52,6 +57,7 @@ func part2(input string) {
 		buyerPrices = append(buyerPrices, prices)
 	}
 
+	start := time.Now()
 	buyerIndexes := make([]map[[4]int]int, 0)
 	allIndexes := make(map[[4]int]bool)
 	for _, prices := range buyerPrices {
@@ -71,19 +77,45 @@ func part2(input string) {
 		}
 		buyerIndexes = append(buyerIndexes, index)
 	}
+	helpers.TrackTime(start, "building indexes")
 
+	start = time.Now()
 	maxPrice := 0
-	var maxIndex [4]int
+	var maxIndex []int
+	ch := make(chan []int)
+	go func() {
+		for result := range ch {
+			price := result[0]
+			if price > maxPrice {
+				maxPrice = price
+				maxIndex = result[1:]
+			}
+		}
+	}()
+	wg := sync.WaitGroup{}
+	wg.Add(len(allIndexes))
 	for index := range allIndexes {
-		price := 0
-		for _, buyer := range buyerIndexes {
-			price += buyer[index]
-		}
-		if price > maxPrice {
-			maxPrice = price
-			maxIndex = index
-		}
+		go func(idx [4]int) {
+			price := 0
+			for _, buyer := range buyerIndexes {
+				price += buyer[index]
+			}
+			ch <- append([]int{price}, idx[:]...)
+			wg.Done()
+		}(index)
 	}
+	wg.Wait()
+	//for index := range allIndexes {
+	//	price := 0
+	//	for _, buyer := range buyerIndexes {
+	//		price += buyer[index]
+	//	}
+	//	if price > maxPrice {
+	//		maxPrice = price
+	//		maxIndex = index
+	//	}
+	//}
+	helpers.TrackTime(start, "find max prices")
 	slog.Info("Part 2:", "price", maxPrice, "index", maxIndex)
 }
 
