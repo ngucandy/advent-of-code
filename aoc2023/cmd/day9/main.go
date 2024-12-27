@@ -3,6 +3,7 @@ package main
 import (
 	"log/slog"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -55,5 +56,18 @@ func allZero(s []int) bool {
 }
 
 func part2(input string) {
+	total := 0
+	lines := strings.Split(input, "\n")
+	for _, line := range lines {
+		parts := strings.Split(line, " ")
+		var seq []int
+		for _, num := range parts {
+			n, _ := strconv.Atoi(num)
+			seq = append(seq, n)
+		}
+		slices.Reverse(seq)
+		total += nextVal(seq)
+	}
+	slog.Info("Part 2:", "total", total)
 
 }
