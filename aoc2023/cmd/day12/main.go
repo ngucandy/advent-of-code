@@ -32,26 +32,26 @@ func part1(input string) {
 			n, _ := strconv.Atoi(part)
 			damaged = append(damaged, n)
 		}
-		total += arragnements(springs, damaged)
+		total += arrangements(springs, damaged)
 	}
 	slog.Info("Part 1:", "total", total)
 }
 
-func arragnements(springs string, damaged []int) int {
+func arrangements(springs string, damaged []int) int {
 	unknownCount := strings.Count(springs, "?")
 	combos := helpers.CartesianProductN([]rune("#."), unknownCount)
 	matched := 0
 	for _, combo := range combos {
-		var arrangment string
+		var arrangement string
 		for _, spring := range springs {
 			if spring == '?' {
-				arrangment += string(combo[0])
+				arrangement += string(combo[0])
 				combo = combo[1:]
 				continue
 			}
-			arrangment += string(spring)
+			arrangement += string(spring)
 		}
-		if isMatch(arrangment, damaged) {
+		if isMatch(arrangement, damaged) {
 			matched++
 		}
 	}
