@@ -58,9 +58,10 @@ func arragnements(springs string, damaged []int) int {
 	return matched
 }
 
+var reDamaged = regexp.MustCompile(`#+`)
+
 func isMatch(springs string, damaged []int) bool {
-	re := regexp.MustCompile(`#+`)
-	matches := re.FindAllString(springs, -1)
+	matches := reDamaged.FindAllString(springs, -1)
 	damagedMatch := make([]int, len(matches))
 	for i, match := range matches {
 		damagedMatch[i] = len(match)
