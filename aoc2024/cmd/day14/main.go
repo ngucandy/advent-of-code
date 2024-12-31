@@ -86,7 +86,7 @@ func part2(robots [][2][2]int) {
 		for row := 0; row < rows; row++ {
 			graph[row] = make([]rune, cols)
 			for col := 0; col < cols; col++ {
-				graph[row][col] = '.'
+				graph[row][col] = ' '
 			}
 		}
 		cluster := false
