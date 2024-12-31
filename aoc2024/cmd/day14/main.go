@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"log/slog"
 	"os"
 	"regexp"
@@ -82,11 +82,11 @@ func part2(robots [][2][2]int) {
 	seconds := 0
 	for {
 		seconds++
-		graph := make([][]string, rows)
+		graph := make([][]rune, rows)
 		for row := 0; row < rows; row++ {
-			graph[row] = make([]string, cols)
+			graph[row] = make([]rune, cols)
 			for col := 0; col < cols; col++ {
-				graph[row][col] = "."
+				graph[row][col] = '.'
 			}
 		}
 		cluster := false
@@ -98,7 +98,7 @@ func part2(robots [][2][2]int) {
 
 			endx := (((velx*seconds + startx) % cols) + cols) % cols
 			endy := (((vely*seconds + starty) % rows) + rows) % rows
-			graph[endy][endx] = "#"
+			graph[endy][endx] = '#'
 
 			// look for a robot surrounded by robots on all sides
 			localcluster := true
@@ -109,7 +109,7 @@ func part2(robots [][2][2]int) {
 					localcluster = false
 					break
 				}
-				if graph[neighbory][neighborx] != "#" {
+				if graph[neighbory][neighborx] != '#' {
 					localcluster = false
 					break
 				}
@@ -118,9 +118,7 @@ func part2(robots [][2][2]int) {
 		}
 
 		if cluster {
-			for _, row := range graph {
-				fmt.Println(row)
-			}
+			helpers.PrintGrid(graph)
 			break
 		}
 	}
