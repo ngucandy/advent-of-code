@@ -49,27 +49,9 @@ func part1(robots [][2][2]int) {
 		starty := robot[0][1]
 		velx := robot[1][0]
 		vely := robot[1][1]
-		negxvel := false
-		negyvel := false
 
-		if velx < 0 {
-			startx = cols - startx - 1
-			velx = -velx
-			negxvel = true
-		}
-		if vely < 0 {
-			starty = rows - starty - 1
-			vely = -vely
-			negyvel = true
-		}
-		endx := (velx*seconds + startx) % cols
-		endy := (vely*seconds + starty) % rows
-		if negxvel {
-			endx = cols - endx - 1
-		}
-		if negyvel {
-			endy = rows - endy - 1
-		}
+		endx := (((velx*seconds + startx) % cols) + cols) % cols
+		endy := (((vely*seconds + starty) % rows) + rows) % rows
 
 		if endx == cols/2 || endy == rows/2 {
 			continue
@@ -113,27 +95,9 @@ func part2(robots [][2][2]int) {
 			starty := robot[0][1]
 			velx := robot[1][0]
 			vely := robot[1][1]
-			negxvel := false
-			negyvel := false
 
-			if velx < 0 {
-				startx = cols - startx - 1
-				velx = -velx
-				negxvel = true
-			}
-			if vely < 0 {
-				starty = rows - starty - 1
-				vely = -vely
-				negyvel = true
-			}
-			endx := (velx*seconds + startx) % cols
-			endy := (vely*seconds + starty) % rows
-			if negxvel {
-				endx = cols - endx - 1
-			}
-			if negyvel {
-				endy = rows - endy - 1
-			}
+			endx := (((velx*seconds + startx) % cols) + cols) % cols
+			endy := (((vely*seconds + starty) % rows) + rows) % rows
 			graph[endy][endx] = "#"
 
 			// look for a robot surrounded by robots on all sides
