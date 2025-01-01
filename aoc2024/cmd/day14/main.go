@@ -2,11 +2,16 @@ package main
 
 import (
 	"bufio"
-	"github.com/ngucandy/advent-of-code/internal/helpers"
+	"fmt"
+	"image"
+	"image/color"
+	"image/draw"
+	"image/png"
 	"log/slog"
 	"os"
 	"regexp"
 	"strconv"
+	"sync"
 )
 
 func main() {
@@ -80,6 +85,7 @@ func part2(robots [][2][2]int) {
 	rows := 103
 	cols := 101
 	seconds := 0
+	wg := sync.WaitGroup{}
 	for {
 		seconds++
 		graph := make([][]rune, rows)
@@ -116,11 +122,36 @@ func part2(robots [][2][2]int) {
 			}
 			cluster = cluster || localcluster
 		}
-
+		wg.Add(1)
+		go func(graph [][]rune, frame int) {
+			defer wg.Done()
+			makeImage(rows, cols, graph, frame)
+		}(graph, seconds)
 		if cluster {
-			helpers.PrintGrid(graph)
 			break
 		}
 	}
 	slog.Info("Part 2:", "seconds", seconds)
+	wg.Wait()
+}
+
+func makeImage(rows, cols int, graph [][]rune, frame int) {
+	scale := 6
+	img := image.NewRGBA(image.Rect(0, 0, rows*scale, cols*scale))
+	c := color.RGBA{0, 255, 0, 0xff}
+	for row := 0; row < len(graph); row++ {
+		for col := 0; col < len(graph[row]); col++ {
+			if graph[row][col] == '#' {
+				x := col * scale
+				y := row * scale
+				r := image.Rect(x, y, x+scale, y+scale)
+				draw.Draw(img, r, &image.Uniform{c}, image.Point{0, 0}, draw.Src)
+			}
+		}
+	}
+	f, err := os.Create(fmt.Sprintf("aoc2024/day14/%04d.png", frame))
+	if err != nil {
+		panic(err)
+	}
+	png.Encode(f, img)
 }
