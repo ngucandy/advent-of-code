@@ -3,6 +3,9 @@ package main
 import (
 	"log/slog"
 	"os"
+	"regexp"
+	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -36,5 +39,37 @@ func hash(s string) int {
 }
 
 func part2(input string) {
+	re := regexp.MustCompile(`(.+)([=-])(\d*)`)
+	steps := strings.Split(input, ",")
+	boxes := make([][][2]string, 256)
 
+	for _, step := range steps {
+		matches := re.FindStringSubmatch(step)
+		label := matches[1]
+		op := matches[2]
+		box := hash(label)
+		indexFunc := func(lens [2]string) bool {
+			return lens[0] == label
+		}
+		if op == "=" {
+			fl := matches[3]
+			lens := [2]string{label, fl}
+			if i := slices.IndexFunc(boxes[box], indexFunc); i != -1 {
+				boxes[box][i] = lens
+			} else {
+				boxes[box] = append(boxes[box], lens)
+			}
+		} else { // op == "-"
+			boxes[box] = slices.DeleteFunc(boxes[box], indexFunc)
+		}
+	}
+
+	power := 0
+	for i, box := range boxes {
+		for slot, lens := range box {
+			fl, _ := strconv.Atoi(lens[1])
+			power += (i + 1) * (slot + 1) * fl
+		}
+	}
+	slog.Info("Part 2:", "power", power)
 }
