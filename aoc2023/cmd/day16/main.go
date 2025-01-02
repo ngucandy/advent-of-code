@@ -1,9 +1,12 @@
 package main
 
 import (
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"log/slog"
 	"os"
 	"strings"
+	"sync"
+	"time"
 )
 
 func main() {
@@ -23,14 +26,60 @@ const (
 	up
 )
 
+var (
+	directions = [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
+)
+
 func part1(input string) {
 	var grid [][]rune
 	for _, line := range strings.Split(input, "\n") {
 		grid = append(grid, []rune(line))
 	}
-	directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
+
+	slog.Info("Part 1:", "energized", countEnergized(grid, [3]int{0, 0, right}))
+}
+
+func part2(input string) {
+	defer helpers.TrackTime(time.Now(), "part2")
+
+	var grid [][]rune
+	for _, line := range strings.Split(input, "\n") {
+		grid = append(grid, []rune(line))
+	}
+
+	wg := sync.WaitGroup{}
+	maxEnergized := 0
+	for row := range grid {
+		for col := range grid[row] {
+			if !isEdge(grid, row, col) {
+				continue
+			}
+			wg.Add(1)
+			go func() {
+				if row == 0 {
+					maxEnergized = max(maxEnergized, countEnergized(grid, [3]int{row, col, down}))
+				}
+				if row == len(grid)-1 {
+					maxEnergized = max(maxEnergized, countEnergized(grid, [3]int{row, col, up}))
+				}
+				if col == 0 {
+					maxEnergized = max(maxEnergized, countEnergized(grid, [3]int{row, col, right}))
+				}
+				if col == len(grid[0])-1 {
+					maxEnergized = max(maxEnergized, countEnergized(grid, [3]int{row, col, left}))
+				}
+				wg.Done()
+			}()
+		}
+	}
+	wg.Wait()
+	slog.Info("Part 2:", "energized", maxEnergized)
+
+}
+
+func countEnergized(grid [][]rune, start [3]int) int {
 	seen := make(map[[3]int]struct{})
-	queue := [][3]int{{0, 0, right}}
+	queue := [][3]int{start}
 	for len(queue) > 0 {
 		current := queue[0]
 		queue = queue[1:]
@@ -98,9 +147,15 @@ func part1(input string) {
 	for tile := range seen {
 		energized[[2]int{tile[0], tile[1]}] = struct{}{}
 	}
-	slog.Info("Part 1:", "energized", len(energized))
+	return len(energized)
 }
 
-func part2(input string) {
-
+func isEdge(grid [][]rune, row, col int) bool {
+	if row == 0 || row == len(grid)-1 {
+		return true
+	}
+	if col == 0 || col == len(grid[row])-1 {
+		return true
+	}
+	return false
 }
