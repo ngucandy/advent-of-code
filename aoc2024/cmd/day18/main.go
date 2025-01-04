@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+
+	"github.com/ngucandy/advent-of-code/internal/queue"
 )
 
 func main() {
@@ -38,34 +40,6 @@ func main() {
 	part2(grid, bytes)
 }
 
-type state [5]int
-
-type pqueue []state
-
-func (pq pqueue) Len() int {
-	return len(pq)
-}
-
-func (pq pqueue) Less(i, j int) bool {
-	return pq[i][0] < pq[j][0]
-}
-
-func (pq pqueue) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-}
-
-func (pq *pqueue) Push(x interface{}) {
-	*pq = append(*pq, x.(state))
-}
-
-func (pq *pqueue) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	x := old[n-1]
-	*pq = old[0 : n-1]
-	return x
-}
-
 var directions = [][2]int{
 	{-1, 0},
 	{0, -1},
@@ -75,15 +49,15 @@ var directions = [][2]int{
 
 func part1(grid [][]rune, bytes [][2]int) {
 	fall(grid, bytes, 1024)
-	pq := pqueue{state{0, 0, 0}}
+	pq := queue.NewPriorityQueue()
+	pq.Push(queue.Item{0, 0, 0})
 	seen := make(map[[2]int]bool)
-	heap.Init(&pq)
 
-	for len(pq) > 0 {
-		st := heap.Pop(&pq).(state)
-		cost := st[0]
-		cx := st[1]
-		cy := st[2]
+	for pq.Len() > 0 {
+		item := heap.Pop(pq).(queue.Item)
+		cost := item[0]
+		cx := item[1]
+		cy := item[2]
 
 		if cx == len(grid)-1 && cy == len(grid)-1 {
 			slog.Info("Part 1:", "steps", cost)
@@ -102,7 +76,7 @@ func part1(grid [][]rune, bytes [][2]int) {
 			if nx < 0 || nx >= len(grid) || ny < 0 || ny >= len(grid) || grid[ny][nx] == '#' {
 				continue
 			}
-			heap.Push(&pq, state{cost + 1, nx, ny})
+			heap.Push(pq, queue.Item{cost + 1, nx, ny})
 		}
 	}
 }
@@ -112,16 +86,16 @@ func part2(grid [][]rune, bytes [][2]int) {
 	for i := 1024; i < len(bytes); i++ {
 		grid[bytes[i][0]][bytes[i][1]] = '#'
 
-		pq := pqueue{state{0, 0, 0}}
+		pq := queue.NewPriorityQueue()
+		pq.Push(queue.Item{0, 0, 0})
 		seen := make(map[[2]int]bool)
-		heap.Init(&pq)
 		pathFound := false
 
-		for len(pq) > 0 {
-			st := heap.Pop(&pq).(state)
-			cost := st[0]
-			cx := st[1]
-			cy := st[2]
+		for pq.Len() > 0 {
+			item := heap.Pop(pq).(queue.Item)
+			cost := item[0]
+			cx := item[1]
+			cy := item[2]
 
 			if cx == len(grid)-1 && cy == len(grid)-1 {
 				slog.Info("Found path to end:", "steps", cost)
@@ -141,7 +115,7 @@ func part2(grid [][]rune, bytes [][2]int) {
 				if nx < 0 || nx >= len(grid) || ny < 0 || ny >= len(grid) || grid[ny][nx] == '#' {
 					continue
 				}
-				heap.Push(&pq, state{cost + 1, nx, ny})
+				heap.Push(pq, queue.Item{cost + 1, nx, ny})
 			}
 		}
 		if !pathFound {
