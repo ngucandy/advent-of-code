@@ -29,6 +29,11 @@ func part1(input string) {
 		grid = append(grid, row)
 	}
 
+	up := [2]int{-1, 0}
+	down := [2]int{1, 0}
+	left := [2]int{0, -1}
+	right := [2]int{0, 1}
+	directions := [][2]int{up, down, left, right}
 	pq := queue.NewPriorityQueue()
 	heap.Push(pq, queue.Item{0, 0, 0, 0, 0, 0})
 	seen := make(map[[5]int]bool)
@@ -47,12 +52,7 @@ func part1(input string) {
 		}
 		seen[key] = true
 
-		up := [2]int{-1, 0}
-		down := [2]int{1, 0}
-		left := [2]int{0, -1}
-		right := [2]int{0, 1}
-
-		for _, dir := range [][2]int{up, down, left, right} {
+		for _, dir := range directions {
 			nr := r + dir[0]
 			nc := c + dir[1]
 			// check bounds
