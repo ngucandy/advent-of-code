@@ -22,12 +22,17 @@ func (pq *PriorityQueue) Push(x any) {
 	*pq = append(*pq, x.(Item))
 }
 
-func (pq *PriorityQueue) Pop() any {
-	old := *pq
-	n := len(old)
-	x := old[n-1]
-	*pq = old[0 : n-1]
+func Push(pq *PriorityQueue, item Item) {
+	heap.Push(pq, item)
+}
+
+func (pq *PriorityQueue) Pop() (x any) {
+	x, *pq = (*pq)[len(*pq)-1], (*pq)[:len(*pq)-1]
 	return x
+}
+
+func Pop(pq *PriorityQueue) Item {
+	return heap.Pop(pq).(Item)
 }
 
 func NewPriorityQueue() *PriorityQueue {

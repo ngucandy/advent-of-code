@@ -1,7 +1,6 @@
 package main
 
 import (
-	"container/heap"
 	"github.com/ngucandy/advent-of-code/internal/queue"
 	"log/slog"
 	"os"
@@ -35,10 +34,10 @@ func part1(input string) {
 	right := [2]int{0, 1}
 	directions := [][2]int{up, down, left, right}
 	pq := queue.NewPriorityQueue()
-	heap.Push(pq, queue.Item{0, 0, 0, 0, 0, 0})
+	queue.Push(pq, queue.Item{0, 0, 0, 0, 0, 0})
 	seen := make(map[[5]int]bool)
 	for pq.Len() > 0 {
-		item := heap.Pop(pq).(queue.Item)
+		item := queue.Pop(pq)
 		hl, r, c, dr, dc, steps := item[0], item[1], item[2], item[3], item[4], item[5]
 
 		if r == len(grid)-1 && c == len(grid[0])-1 {
@@ -69,9 +68,9 @@ func part1(input string) {
 				if steps == 3 {
 					continue
 				}
-				heap.Push(pq, queue.Item{hl + grid[nr][nc], nr, nc, dir[0], dir[1], steps + 1})
+				queue.Push(pq, queue.Item{hl + grid[nr][nc], nr, nc, dir[0], dir[1], steps + 1})
 			} else {
-				heap.Push(pq, queue.Item{hl + grid[nr][nc], nr, nc, dir[0], dir[1], 1})
+				queue.Push(pq, queue.Item{hl + grid[nr][nc], nr, nc, dir[0], dir[1], 1})
 			}
 		}
 	}
