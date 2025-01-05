@@ -3,6 +3,7 @@ package helpers
 import (
 	"fmt"
 	"log/slog"
+	"strconv"
 	"time"
 )
 
@@ -48,6 +49,16 @@ func TrackTime(start time.Time, name string) {
 func PrintGrid(grid [][]rune) {
 	for _, row := range grid {
 		fmt.Println(string(row))
+	}
+}
+
+func PrintIntGrid(grid [][]int) {
+	for _, row := range grid {
+		s := ""
+		for _, cell := range row {
+			s += strconv.Itoa(cell)
+		}
+		fmt.Println(s)
 	}
 }
 
