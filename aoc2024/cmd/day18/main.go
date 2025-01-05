@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"fmt"
 	"log/slog"
 	"os"
@@ -50,11 +49,11 @@ var directions = [][2]int{
 func part1(grid [][]rune, bytes [][2]int) {
 	fall(grid, bytes, 1024)
 	pq := queue.NewPriorityQueue()
-	pq.Push(queue.Item{0, 0, 0})
+	queue.Push(pq, queue.Item{0, 0, 0})
 	seen := make(map[[2]int]bool)
 
 	for pq.Len() > 0 {
-		item := heap.Pop(pq).(queue.Item)
+		item := queue.Pop(pq)
 		cost := item[0]
 		cx := item[1]
 		cy := item[2]
@@ -76,7 +75,7 @@ func part1(grid [][]rune, bytes [][2]int) {
 			if nx < 0 || nx >= len(grid) || ny < 0 || ny >= len(grid) || grid[ny][nx] == '#' {
 				continue
 			}
-			heap.Push(pq, queue.Item{cost + 1, nx, ny})
+			queue.Push(pq, queue.Item{cost + 1, nx, ny})
 		}
 	}
 }
@@ -87,12 +86,12 @@ func part2(grid [][]rune, bytes [][2]int) {
 		grid[bytes[i][0]][bytes[i][1]] = '#'
 
 		pq := queue.NewPriorityQueue()
-		pq.Push(queue.Item{0, 0, 0})
+		queue.Push(pq, queue.Item{0, 0, 0})
 		seen := make(map[[2]int]bool)
 		pathFound := false
 
 		for pq.Len() > 0 {
-			item := heap.Pop(pq).(queue.Item)
+			item := queue.Pop(pq)
 			cost := item[0]
 			cx := item[1]
 			cy := item[2]
@@ -115,7 +114,7 @@ func part2(grid [][]rune, bytes [][2]int) {
 				if nx < 0 || nx >= len(grid) || ny < 0 || ny >= len(grid) || grid[ny][nx] == '#' {
 					continue
 				}
-				heap.Push(pq, queue.Item{cost + 1, nx, ny})
+				queue.Push(pq, queue.Item{cost + 1, nx, ny})
 			}
 		}
 		if !pathFound {
