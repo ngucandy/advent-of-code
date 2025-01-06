@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"math"
 	"os"
+	"time"
 )
 
 func main() {
@@ -84,6 +85,7 @@ func (pq *pqueue) Pop() interface{} {
 }
 
 func part1(maze [][]rune, s [2]int, e [2]int) {
+	defer helpers.TrackTime(time.Now(), "part1")
 	pq := pqueue{state{0, s[0], s[1], 0, [][2]int{}}}
 	seen := make(map[[3]int]bool)
 	heap.Init(&pq)
@@ -120,6 +122,7 @@ func part1(maze [][]rune, s [2]int, e [2]int) {
 }
 
 func part2(maze [][]rune, s [2]int, e [2]int) {
+	defer helpers.TrackTime(time.Now(), "part2")
 	pq := pqueue{state{0, s[0], s[1], 0, [][2]int{}}}
 	seen := make(map[[3]int]int)
 	heap.Init(&pq)
@@ -145,7 +148,6 @@ func part2(maze [][]rune, s [2]int, e [2]int) {
 			for _, node := range st.nodes {
 				maze[node[1]][node[0]] = 'O'
 			}
-			helpers.PrintGrid(maze)
 			for _, node := range st.nodes {
 				maze[node[1]][node[0]] = '.'
 			}
@@ -177,7 +179,5 @@ func part2(maze [][]rune, s [2]int, e [2]int) {
 		paths[path] = true
 		maze[path[1]][path[0]] = 'O'
 	}
-	helpers.PrintGrid(maze)
 	slog.Info("Part 2:", "tiles", len(paths))
-
 }
