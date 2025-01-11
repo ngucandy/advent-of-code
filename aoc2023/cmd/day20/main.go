@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"log/slog"
 	"os"
+	"slices"
 	"strings"
 )
 
@@ -48,46 +51,11 @@ func main() {
 	part1(testInput1)
 	part1(testInput2)
 	part1(input)
-	part2(testInput1)
-	part2(testInput2)
 	part2(input)
 }
 
 func part1(input string) {
-	modules := make(map[string]*Module)
-	for _, line := range strings.Split(input, "\n") {
-		parts := strings.Split(line, " -> ")
-		switch parts[0][0] {
-		case 'b':
-			modules[parts[0]] = &Module{
-				Name:         "broadcaster",
-				Type:         "broadcaster",
-				Destinations: strings.Split(parts[1], ", "),
-			}
-		case '%':
-			modules[parts[0][1:]] = &Module{
-				Name:         parts[0][1:],
-				Type:         "%",
-				Destinations: strings.Split(parts[1], ", "),
-				OnOff:        off,
-			}
-		case '&':
-			modules[parts[0][1:]] = &Module{
-				Name:           parts[0][1:],
-				Type:           "&",
-				Destinations:   strings.Split(parts[1], ", "),
-				ReceivedPulses: make(map[string]string),
-			}
-		}
-	}
-	// map conjunction inputs
-	for _, module := range modules {
-		for _, dest := range module.Destinations {
-			if m, exists := modules[dest]; exists && m.Type == "&" {
-				m.ReceivedPulses[module.Name] = low
-			}
-		}
-	}
+	modules := buildModules(input)
 	lc, hc := 0, 0
 	var q []Pulse
 	for range 1000 {
@@ -104,6 +72,61 @@ func part1(input string) {
 		}
 	}
 	slog.Info("Part 1:", "low", lc, "high", hc, "product", lc*hc)
+}
+
+func buildModules(input string) map[string]*Module {
+	modules := make(map[string]*Module)
+	for _, line := range strings.Split(input, "\n") {
+		parts := strings.Split(line, " -> ")
+
+		// chop off '%' or '&' for name
+		name := parts[0]
+		if slices.Contains([]rune{'%', '&'}, rune(name[0])) {
+			name = name[1:]
+		}
+		module, exists := modules[name]
+		if !exists {
+			module = &Module{
+				Name: name,
+			}
+			modules[name] = module
+		}
+
+		// module type
+		switch parts[0][0] {
+		case 'b':
+			module.Type = "broadcaster"
+		case '%':
+			module.Type = "%"
+			module.OnOff = off
+			module.ReceivedPulses = make(map[string]string)
+		case '&':
+			module.Type = "&"
+			module.ReceivedPulses = make(map[string]string)
+		}
+
+		// destinations
+		module.Destinations = strings.Split(parts[1], ", ")
+		for _, dest := range module.Destinations {
+			if _, exists := modules[dest]; !exists {
+				modules[dest] = &Module{
+					Name:           dest,
+					Type:           "untyped",
+					ReceivedPulses: make(map[string]string),
+				}
+			}
+		}
+	}
+
+	// map conjunction inputs
+	for _, module := range modules {
+		for _, dest := range module.Destinations {
+			if m, exists := modules[dest]; exists {
+				m.ReceivedPulses[module.Name] = low
+			}
+		}
+	}
+	return modules
 }
 
 func pulse(p Pulse, modules map[string]*Module) []Pulse {
@@ -159,5 +182,48 @@ func pulse(p Pulse, modules map[string]*Module) []Pulse {
 }
 
 func part2(input string) {
+	modules := buildModules(input)
+	rx := modules["rx"]
+	if len(rx.ReceivedPulses) > 1 {
+		panic("rx module has more than one sender")
+	}
+	var rxSource string
+	for k := range rx.ReceivedPulses {
+		rxSource = k
+	}
 
+	var sources []string
+	for feeder := range modules[rxSource].ReceivedPulses {
+		sources = append(sources, feeder)
+	}
+
+	var q []Pulse
+	srcHigh := make(map[string][]int)
+	i := 0
+Outer:
+	for {
+		i++
+		q = append(q, Pulse{"button", low, "broadcaster"})
+		for len(q) > 0 {
+			p := q[0]
+			q = q[1:]
+			if slices.Contains(sources, p.Source) && p.Signal == high {
+				srcHigh[p.Source] = append(srcHigh[p.Source], i)
+				if len(srcHigh[p.Source]) == 10 {
+					break Outer
+				}
+			}
+			q = append(q, pulse(p, modules)...)
+		}
+	}
+	lcm := 1
+	for src, presses := range srcHigh {
+		for j := 1; j < len(presses); j++ {
+			if presses[j] != presses[0]*(j+1) {
+				panic(fmt.Sprintf("bad repeating pattern; expected %d; got %d: %v", presses[0]*(j+1), presses[j], src))
+			}
+		}
+		lcm = helpers.LCM(lcm, presses[0])
+	}
+	slog.Info("Part 2:", "presses", lcm)
 }
