@@ -18,6 +18,8 @@ const (
 .##.#.####.
 .##..##.##.
 ...........`
+
+	maxSteps = 64
 )
 
 func main() {
@@ -26,7 +28,7 @@ func main() {
 	bytes, _ := os.ReadFile(infile)
 	input := strings.ReplaceAll(string(bytes), "\r\n", "\n")
 
-	//part1(testInput)
+	part1(testInput)
 	part1(input)
 	part2(testInput)
 	part2(input)
@@ -44,8 +46,8 @@ func part1(input string) {
 		grid = append(grid, []rune(line))
 	}
 
-	reached := make(map[[2]int]struct{})
-	maxSteps := 64
+	seen := make(map[[2]int]bool)
+	reachable := make(map[[2]int]struct{})
 	q := [][3]int{{start[0], start[1], 0}}
 	for len(q) > 0 {
 		cur := q[0]
@@ -54,12 +56,19 @@ func part1(input string) {
 		c := cur[1]
 		steps := cur[2]
 
-		if steps == maxSteps && grid[r][c] == '.' {
-			reached[[2]int{r, c}] = struct{}{}
-		}
-
 		if steps > maxSteps {
 			continue
+		}
+
+		if seen[[2]int{r, c}] {
+			continue
+		}
+
+		seen[[2]int{r, c}] = true
+		if maxSteps%2 == 0 && steps%2 == 0 {
+			reachable[[2]int{r, c}] = struct{}{}
+		} else if maxSteps%2 == 1 && steps%2 == 1 {
+			reachable[[2]int{r, c}] = struct{}{}
 		}
 
 		for _, dir := range [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
@@ -71,7 +80,7 @@ func part1(input string) {
 			q = append(q, [3]int{nr, nc, steps + 1})
 		}
 	}
-	slog.Info("Part 1:", "reached", len(reached))
+	slog.Info("Part 1:", "reachable", len(reachable))
 }
 
 func part2(input string) {
