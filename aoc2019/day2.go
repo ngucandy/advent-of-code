@@ -28,11 +28,11 @@ func (d Day2) Part1(input string) {
 	}
 	program[1] = 12
 	program[2] = 2
-	runProgram(program)
+	d.runProgram(program)
 	fmt.Println("part1", program[0])
 }
 
-func runProgram(program []int) {
+func (d Day2) runProgram(program []int) {
 	for ip := 0; program[ip] != 99; ip += 4 {
 		opcode := program[ip]
 		operand1 := program[program[ip+1]]
@@ -63,7 +63,7 @@ func (d Day2) Part2(input string) {
 			go func(n1, n2 int) {
 				p := slices.Clone(program)
 				p[1], p[2] = n1, n2
-				runProgram(p)
+				d.runProgram(p)
 				if p[0] == 19690720 {
 					fmt.Println("part2", 100*p[1]+p[2])
 					os.Exit(0)
