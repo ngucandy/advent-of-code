@@ -32,4 +32,14 @@ func (d Day9) Part1(input string) {
 }
 
 func (d Day9) Part2(input string) {
+	var program []int
+	for _, code := range strings.Split(strings.TrimSpace(input), ",") {
+		n, _ := strconv.Atoi(code)
+		program = append(program, n)
+	}
+
+	c := NewIntcodeComputer(program, []int{2})
+	for c.Step() {
+	}
+	fmt.Println("part2", c.output)
 }
