@@ -22,7 +22,7 @@ func (d Day5) Part1(input string) {
 		n, _ := strconv.Atoi(parts)
 		memory = append(memory, n)
 	}
-	c := NewIntcodeComputer(memory, 1)
+	c := NewIntcodeComputer(memory, []int{1})
 	for c.Step() {
 	}
 	fmt.Println("part1", c.output[len(c.output)-1])
@@ -34,27 +34,29 @@ func (d Day5) Part2(input string) {
 		n, _ := strconv.Atoi(parts)
 		memory = append(memory, n)
 	}
-	c := NewIntcodeComputer(memory, 5)
+	c := NewIntcodeComputer(memory, []int{5})
 	for c.Step() {
 	}
 	fmt.Println("part2", c.output[len(c.output)-1])
 }
 
 type IntcodeComputer struct {
-	memory []int
-	input  int
-	output []int
-	ip     int
-	opfns  map[int]func(map[int]int)
+	memory     []int
+	input      []int
+	output     []int
+	ip         int
+	opfns      map[int]func(map[int]int)
+	inputIndex int
 }
 
-func NewIntcodeComputer(memory []int, input int) *IntcodeComputer {
+func NewIntcodeComputer(memory []int, input []int) *IntcodeComputer {
 	c := &IntcodeComputer{
-		memory: memory,
-		input:  input,
-		output: make([]int, 0),
-		ip:     0,
-		opfns:  make(map[int]func(map[int]int)),
+		memory:     memory,
+		input:      input,
+		output:     make([]int, 0),
+		ip:         0,
+		opfns:      make(map[int]func(map[int]int)),
+		inputIndex: 0,
 	}
 	c.opfns[1] = c.opcode1
 	c.opfns[2] = c.opcode2
@@ -94,7 +96,8 @@ func (c *IntcodeComputer) opcode2(pmodes map[int]int) {
 // take an input value and store it at address 50.
 func (c *IntcodeComputer) opcode3(_ map[int]int) {
 	param := c.memory[c.ip+1]
-	c.memory[param] = c.input
+	c.memory[param] = c.input[c.inputIndex]
+	c.inputIndex++
 	c.ip += 2
 }
 
