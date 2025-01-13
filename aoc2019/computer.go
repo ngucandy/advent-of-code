@@ -158,10 +158,16 @@ func (c *IntcodeComputer) readParams(n int, pmodes map[int]int) []int {
 	var params []int
 	for i := range n {
 		param := c.memory[c.ip+i+1]
-		if pmode, exists := pmodes[i]; exists && pmode == 1 {
-			params = append(params, param)
-		} else {
+		pmode, exists := pmodes[i]
+		if !exists || pmode == 0 {
 			params = append(params, c.memory[param])
+			continue
+		}
+		switch pmode {
+		case 1:
+			params = append(params, param)
+		default:
+			panic(fmt.Sprintf("unknown paramter mode: %d", pmode))
 		}
 	}
 	return params
