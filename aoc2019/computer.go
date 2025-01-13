@@ -3,24 +3,22 @@ package aoc2019
 import "fmt"
 
 type IntcodeComputer struct {
-	memory     []int
-	input      []int
-	output     []int
-	ip         int
-	opfns      map[int]func(map[int]int)
-	inputIndex int
-	relBase    int
+	memory  []int
+	input   []int
+	output  []int
+	ip      int
+	opfns   map[int]func(map[int]int)
+	relBase int
 }
 
 func NewIntcodeComputer(program []int, input []int) *IntcodeComputer {
 	c := &IntcodeComputer{
-		memory:     append(program, make([]int, 10000)...),
-		input:      input,
-		output:     make([]int, 0),
-		ip:         0,
-		opfns:      make(map[int]func(map[int]int)),
-		inputIndex: 0,
-		relBase:    0,
+		memory:  append(program, make([]int, 10000)...),
+		input:   input,
+		output:  make([]int, 0),
+		ip:      0,
+		opfns:   make(map[int]func(map[int]int)),
+		relBase: 0,
 	}
 	c.opfns[1] = c.opcode1
 	c.opfns[2] = c.opcode2
@@ -61,8 +59,9 @@ func (c *IntcodeComputer) opcode2(pmodes map[int]int) {
 // take an input value and store it at address 50.
 func (c *IntcodeComputer) opcode3(pmodes map[int]int) {
 	param := c.resolveAddresses(1, 1, pmodes)[0]
-	c.memory[param] = c.input[c.inputIndex]
-	c.inputIndex++
+	input := c.input[0]
+	c.input = c.input[1:]
+	c.memory[param] = input
 	c.ip += 2
 }
 
