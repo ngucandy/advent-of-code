@@ -124,7 +124,7 @@ func (c *IntcodeComputer) opcode8(pmodes map[int]int) {
 }
 
 // Step executes the opcode at the current `ip` and updates the current
-// `ip` as needed.
+// `ip` as needed. Returns false if the executed opcode is `99`.
 func (c *IntcodeComputer) Step() bool {
 	// opcode is one's and ten's digit, e.g., 1002 is opcode 2,
 	// 1198 is opcode 98
