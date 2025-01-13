@@ -12,9 +12,9 @@ type IntcodeComputer struct {
 	relBase    int
 }
 
-func NewIntcodeComputer(memory []int, input []int) *IntcodeComputer {
+func NewIntcodeComputer(program []int, input []int) *IntcodeComputer {
 	c := &IntcodeComputer{
-		memory:     memory,
+		memory:     append(program, make([]int, 10000)...),
 		input:      input,
 		output:     make([]int, 0),
 		ip:         0,
@@ -41,7 +41,7 @@ func NewIntcodeComputer(memory []int, input []int) *IntcodeComputer {
 // indicates the position at which the output should be stored.
 func (c *IntcodeComputer) opcode1(pmodes map[int]int) {
 	operands := c.resolveParams(2, pmodes)
-	param3 := c.memory[c.ip+3]
+	param3 := c.resolveAddress(3, 1, pmodes)[0]
 	c.memory[param3] = operands[0] + operands[1]
 	c.ip += 4
 }
@@ -51,7 +51,7 @@ func (c *IntcodeComputer) opcode1(pmodes map[int]int) {
 // opcode indicate where the inputs and outputs are, not their values.
 func (c *IntcodeComputer) opcode2(pmodes map[int]int) {
 	operands := c.resolveParams(2, pmodes)
-	param3 := c.memory[c.ip+3]
+	param3 := c.resolveAddress(3, 1, pmodes)[0]
 	c.memory[param3] = operands[0] * operands[1]
 	c.ip += 4
 }
@@ -59,8 +59,8 @@ func (c *IntcodeComputer) opcode2(pmodes map[int]int) {
 // Opcode 3 takes a single integer as input and saves it to the position
 // given by its only parameter. For example, the instruction 3,50 would
 // take an input value and store it at address 50.
-func (c *IntcodeComputer) opcode3(_ map[int]int) {
-	param := c.memory[c.ip+1]
+func (c *IntcodeComputer) opcode3(pmodes map[int]int) {
+	param := c.resolveAddress(1, 1, pmodes)[0]
 	c.memory[param] = c.input[c.inputIndex]
 	c.inputIndex++
 	c.ip += 2
@@ -68,9 +68,9 @@ func (c *IntcodeComputer) opcode3(_ map[int]int) {
 
 // Opcode 4 outputs the value of its only parameter. For example, the
 // instruction 4,50 would output the value at address 50.
-func (c *IntcodeComputer) opcode4(_ map[int]int) {
-	param := c.memory[c.ip+1]
-	c.output = append(c.output, c.memory[param])
+func (c *IntcodeComputer) opcode4(pmodes map[int]int) {
+	params := c.resolveParams(1, pmodes)
+	c.output = append(c.output, params[0])
 	c.ip += 2
 }
 
@@ -103,7 +103,7 @@ func (c *IntcodeComputer) opcode6(pmodes map[int]int) {
 // parameter. Otherwise, it stores 0.
 func (c *IntcodeComputer) opcode7(pmodes map[int]int) {
 	operands := c.resolveParams(2, pmodes)
-	param3 := c.memory[c.ip+3]
+	param3 := c.resolveAddress(3, 1, pmodes)[0]
 	if operands[0] < operands[1] {
 		c.memory[param3] = 1
 	} else {
@@ -117,7 +117,7 @@ func (c *IntcodeComputer) opcode7(pmodes map[int]int) {
 // Otherwise, it stores 0.
 func (c *IntcodeComputer) opcode8(pmodes map[int]int) {
 	operands := c.resolveParams(2, pmodes)
-	param3 := c.memory[c.ip+3]
+	param3 := c.resolveAddress(3, 1, pmodes)[0]
 	if operands[0] == operands[1] {
 		c.memory[param3] = 1
 	} else {
@@ -182,8 +182,28 @@ func (c *IntcodeComputer) resolveParams(n int, pmodes map[int]int) []int {
 			pos := c.relBase + param
 			params = append(params, c.memory[pos])
 		default:
-			panic(fmt.Sprintf("unknown paramter mode: %d", pmode))
+			panic(fmt.Sprintf("unknown paramter mode for parameter resolution: %d", pmode))
 		}
 	}
 	return params
+}
+
+// resolveAddress resolves the given
+func (c *IntcodeComputer) resolveAddress(ipoffset, n int, pmodes map[int]int) []int {
+	var addresses []int
+	for i := range n {
+		param := c.memory[c.ip+i+ipoffset]
+		pmode, exists := pmodes[i+ipoffset-1]
+		if !exists || pmode == 0 {
+			addresses = append(addresses, param)
+			continue
+		}
+		switch pmode {
+		case 2:
+			addresses = append(addresses, c.relBase+param)
+		default:
+			panic(fmt.Sprintf("unknown parameter mode for address resolution: %d", pmode))
+		}
+	}
+	return addresses
 }
