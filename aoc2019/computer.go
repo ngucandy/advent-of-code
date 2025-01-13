@@ -40,8 +40,8 @@ func NewIntcodeComputer(program []int, input []int) *IntcodeComputer {
 // positions from which you should read the input values, and the third
 // indicates the position at which the output should be stored.
 func (c *IntcodeComputer) opcode1(pmodes map[int]int) {
-	operands := c.resolveParams(2, pmodes)
-	param3 := c.resolveAddress(3, 1, pmodes)[0]
+	operands := c.resolveParams(1, 2, pmodes)
+	param3 := c.resolveAddresses(3, 1, pmodes)[0]
 	c.memory[param3] = operands[0] + operands[1]
 	c.ip += 4
 }
@@ -50,8 +50,8 @@ func (c *IntcodeComputer) opcode1(pmodes map[int]int) {
 // inputs instead of adding them. Again, the three integers after the
 // opcode indicate where the inputs and outputs are, not their values.
 func (c *IntcodeComputer) opcode2(pmodes map[int]int) {
-	operands := c.resolveParams(2, pmodes)
-	param3 := c.resolveAddress(3, 1, pmodes)[0]
+	operands := c.resolveParams(1, 2, pmodes)
+	param3 := c.resolveAddresses(3, 1, pmodes)[0]
 	c.memory[param3] = operands[0] * operands[1]
 	c.ip += 4
 }
@@ -60,7 +60,7 @@ func (c *IntcodeComputer) opcode2(pmodes map[int]int) {
 // given by its only parameter. For example, the instruction 3,50 would
 // take an input value and store it at address 50.
 func (c *IntcodeComputer) opcode3(pmodes map[int]int) {
-	param := c.resolveAddress(1, 1, pmodes)[0]
+	param := c.resolveAddresses(1, 1, pmodes)[0]
 	c.memory[param] = c.input[c.inputIndex]
 	c.inputIndex++
 	c.ip += 2
@@ -69,7 +69,7 @@ func (c *IntcodeComputer) opcode3(pmodes map[int]int) {
 // Opcode 4 outputs the value of its only parameter. For example, the
 // instruction 4,50 would output the value at address 50.
 func (c *IntcodeComputer) opcode4(pmodes map[int]int) {
-	params := c.resolveParams(1, pmodes)
+	params := c.resolveParams(1, 1, pmodes)
 	c.output = append(c.output, params[0])
 	c.ip += 2
 }
@@ -78,7 +78,7 @@ func (c *IntcodeComputer) opcode4(pmodes map[int]int) {
 // sets the instruction pointer to the value from the second parameter.
 // Otherwise, it does nothing.
 func (c *IntcodeComputer) opcode5(pmodes map[int]int) {
-	params := c.resolveParams(2, pmodes)
+	params := c.resolveParams(1, 2, pmodes)
 	if params[0] != 0 {
 		c.ip = params[1]
 	} else {
@@ -90,7 +90,7 @@ func (c *IntcodeComputer) opcode5(pmodes map[int]int) {
 // the instruction pointer to the value from the second parameter.
 // Otherwise, it does nothing.
 func (c *IntcodeComputer) opcode6(pmodes map[int]int) {
-	params := c.resolveParams(2, pmodes)
+	params := c.resolveParams(1, 2, pmodes)
 	if params[0] == 0 {
 		c.ip = params[1]
 	} else {
@@ -102,8 +102,8 @@ func (c *IntcodeComputer) opcode6(pmodes map[int]int) {
 // second parameter, it stores 1 in the position given by the third
 // parameter. Otherwise, it stores 0.
 func (c *IntcodeComputer) opcode7(pmodes map[int]int) {
-	operands := c.resolveParams(2, pmodes)
-	param3 := c.resolveAddress(3, 1, pmodes)[0]
+	operands := c.resolveParams(1, 2, pmodes)
+	param3 := c.resolveAddresses(3, 1, pmodes)[0]
 	if operands[0] < operands[1] {
 		c.memory[param3] = 1
 	} else {
@@ -116,8 +116,8 @@ func (c *IntcodeComputer) opcode7(pmodes map[int]int) {
 // parameter, it stores 1 in the position given by the third parameter.
 // Otherwise, it stores 0.
 func (c *IntcodeComputer) opcode8(pmodes map[int]int) {
-	operands := c.resolveParams(2, pmodes)
-	param3 := c.resolveAddress(3, 1, pmodes)[0]
+	operands := c.resolveParams(1, 2, pmodes)
+	param3 := c.resolveAddresses(3, 1, pmodes)[0]
 	if operands[0] == operands[1] {
 		c.memory[param3] = 1
 	} else {
@@ -130,7 +130,7 @@ func (c *IntcodeComputer) opcode8(pmodes map[int]int) {
 // The relative base increases (or decreases, if the value is negative) by
 // the value of the parameter.
 func (c *IntcodeComputer) opcode9(pmodes map[int]int) {
-	params := c.resolveParams(1, pmodes)
+	params := c.resolveParams(1, 1, pmodes)
 	c.relBase += params[0]
 	c.ip += 2
 }
@@ -164,13 +164,13 @@ func (c *IntcodeComputer) Step() bool {
 	return true
 }
 
-// resolveParams reads `n` number of parameters from memory starting at the
-// current `ip` + 1. Takes into account the parameter mode given by `pmodes`.
-func (c *IntcodeComputer) resolveParams(n int, pmodes map[int]int) []int {
+// resolveParams resolves `n` number of parameters from memory starting at the
+// current `ip` + `ipoffset`. Takes into account the parameter mode given by `pmodes`.
+func (c *IntcodeComputer) resolveParams(ipoffset, n int, pmodes map[int]int) []int {
 	var params []int
 	for i := range n {
-		param := c.memory[c.ip+i+1]
-		pmode, exists := pmodes[i]
+		param := c.memory[c.ip+i+ipoffset]
+		pmode, exists := pmodes[i+ipoffset-1]
 		if !exists || pmode == 0 {
 			params = append(params, c.memory[param])
 			continue
@@ -188,8 +188,9 @@ func (c *IntcodeComputer) resolveParams(n int, pmodes map[int]int) []int {
 	return params
 }
 
-// resolveAddress resolves the given
-func (c *IntcodeComputer) resolveAddress(ipoffset, n int, pmodes map[int]int) []int {
+// resolveAddresses resolves `n` number of addresses from memory starting at the current
+// `ip` + `ipoffset`. Takes into account the parameter mode given by pmodes
+func (c *IntcodeComputer) resolveAddresses(ipoffset, n int, pmodes map[int]int) []int {
 	var addresses []int
 	for i := range n {
 		param := c.memory[c.ip+i+ipoffset]
