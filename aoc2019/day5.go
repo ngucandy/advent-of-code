@@ -67,6 +67,11 @@ func NewIntcodeComputer(memory []int, input int) *IntcodeComputer {
 	return c
 }
 
+// Opcode 1 adds together numbers read from two positions and stores the
+// result in a third position. The three integers immediately after the
+// opcode tell you these three positions - the first two indicate the
+// positions from which you should read the input values, and the third
+// indicates the position at which the output should be stored.
 func (c *IntcodeComputer) opcode1(pmodes map[int]int) {
 	operands := c.readParams(2, pmodes)
 	param3 := c.memory[c.ip+3]
@@ -74,6 +79,9 @@ func (c *IntcodeComputer) opcode1(pmodes map[int]int) {
 	c.ip += 4
 }
 
+// Opcode 2 works exactly like opcode 1, except it multiplies the two
+// inputs instead of adding them. Again, the three integers after the
+// opcode indicate where the inputs and outputs are, not their values.
 func (c *IntcodeComputer) opcode2(pmodes map[int]int) {
 	operands := c.readParams(2, pmodes)
 	param3 := c.memory[c.ip+3]
@@ -150,17 +158,19 @@ func (c *IntcodeComputer) opcode8(pmodes map[int]int) {
 	c.ip += 4
 }
 
+// Step executes the opcode at the current `ip` and updates the current
+// `ip` as needed.
 func (c *IntcodeComputer) Step() bool {
-	// opcode is one's and ten's digit, e.g., 1002 is opcode 2
-	var opcode int
-	opcode = c.memory[c.ip] % 100
+	// opcode is one's and ten's digit, e.g., 1002 is opcode 2,
+	// 1198 is opcode 98
+	opcode := c.memory[c.ip] % 100
 
 	// opcode 99 halts program
 	if opcode == 99 {
 		return false
 	}
 
-	// parameter modes are 100's, 1000's, 10,000's,... digits
+	// parameter modes are 100's, 1_000's, 10_000's,... digits
 	// e.g., for 1002, param1 mode is 0, param2 mode is 1
 	pmodes := make(map[int]int)
 	for i, modes := 0, c.memory[c.ip]/100; modes > 0; i, modes = i+1, modes/10 {
@@ -177,6 +187,8 @@ func (c *IntcodeComputer) Step() bool {
 	return true
 }
 
+// readParams reads `n` number of parameters from memory starting at the
+// current `ip` + 1. Takes into account the parameter mode given by `pmodes`.
 func (c *IntcodeComputer) readParams(n int, pmodes map[int]int) []int {
 	var params []int
 	for i := range n {
