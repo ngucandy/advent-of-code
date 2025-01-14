@@ -1,8 +1,10 @@
 package aoc2019
 
 import (
+	"cmp"
 	"fmt"
 	"github.com/ngucandy/advent-of-code/internal/helpers"
+	"slices"
 	"strings"
 )
 
@@ -63,11 +65,16 @@ func init() {
 .#.#.###########.###
 #.#.#.#####.####.###
 ###.##.####.##.#..##`,
+		`.#....#####...#..
+##...##.#####..##
+##...#...#.#####.
+..#.....#...###..
+..#.#.....#....##`,
 	}
 }
 
 type Day10 struct {
-	eg1, eg2, eg3, eg4, eg5 string
+	eg1, eg2, eg3, eg4, eg5, eg6 string
 }
 
 func (d Day10) Part1(input string) {
@@ -133,8 +140,125 @@ func (d Day10) Part1(input string) {
 			}
 		}
 	}
-	fmt.Println(maxPosition, maxVisible)
+	fmt.Println("part1", maxPosition, maxVisible)
 }
 
 func (d Day10) Part2(input string) {
+	//input = d.eg5
+	//s := [2]int{13, 11}
+	s := [2]int{29, 26}
+	asteroids := make(map[[2]int]struct{})
+	gh, gw := 0, 0
+	for r, line := range strings.Split(input, "\n") {
+		gh = r + 1
+		for c, ch := range line {
+			gw = c + 1
+			// skip asteroid where station is located
+			if r == s[0] && c == s[1] {
+				continue
+			}
+			if ch == '#' {
+				pos := [2]int{r, c}
+				asteroids[pos] = struct{}{}
+			}
+		}
+	}
+
+	var visible [][4]int
+	for a := range asteroids {
+		dr, dc := a[0]-s[0], a[1]-s[1]
+		gcd := helpers.AbsInt(helpers.GCD(dr, dc))
+		if gcd == 1 {
+			visible = append(visible, [4]int{a[0], a[1], dr, dc})
+			continue
+		}
+		// if gcd != 1, then check all points between s and a for asteroid
+		dr, dc = dr/gcd, dc/gcd
+		blocked := false
+		for r, c := s[0]+dr, s[1]+dc; r >= 0 && r < gh && c >= 0 && c < gw; r, c = r+dr, c+dc {
+			next := [2]int{r, c}
+			if a == next {
+				break
+			}
+			if _, exists := asteroids[next]; exists {
+				blocked = true
+				break
+			}
+		}
+		if !blocked {
+			visible = append(visible, [4]int{a[0], a[1], dr, dc})
+		}
+	}
+
+	slices.SortFunc(visible, d.sort)
+	a200 := visible[199]
+	fmt.Println("part2", a200[1]*100+a200[0])
+}
+
+func (d Day10) sort(a, b [4]int) int {
+	ar, br := a[0], b[0]
+	ac, bc := a[1], b[1]
+	adr, adc := a[2], a[3]
+	bdr, bdc := b[2], b[3]
+
+	// a or b points up or down
+	if adc == 0 || bdc == 0 {
+		// a up, b up
+		if adc == 0 && adr < 0 && bdc == 0 && bdr < 0 {
+			return cmp.Compare(-ar, -br)
+		}
+
+		// a down b down
+		if adc == 0 && adr > 0 && bdc == 0 && bdr > 0 {
+			return cmp.Compare(ar, br)
+		}
+
+		// a up, b not up
+		if adc == 0 && adr < 0 {
+			return -1
+		}
+
+		// a not up, b up
+		if bdc == 0 && bdr < 0 {
+			return 1
+		}
+
+		// a down; b left
+		if adc == 0 && adr > 0 && bdc < 0 {
+			return cmp.Compare(-ac, bc)
+		}
+
+		// a down; b right
+		if adc == 0 && adr > 0 && bdc > 0 {
+			return cmp.Compare(ac, -bc)
+		}
+
+		// b down; a left
+		if bdc == 0 && bdr > 0 && adc < 0 {
+			return cmp.Compare(ac, -bc)
+		}
+
+		// b down; a right
+		if bdc == 0 && bdr > 0 && adc > 0 {
+			return cmp.Compare(-ac, bc)
+		}
+
+		panic(fmt.Sprintf("unhandled comparison where a or b is vertical: a=%v; b=%v", a, b))
+	}
+
+	aslope := float64(adr) / float64(adc)
+	bslope := float64(bdr) / float64(bdc)
+
+	// a and b both point left or right
+	if (adc > 0 && bdc > 0) || (adc < 0 && bdc < 0) {
+		return cmp.Compare(aslope, bslope)
+	}
+
+	// a points left; b points right
+	if adc < 0 && bdc > 0 {
+		return cmp.Compare(ac, -bc)
+	}
+
+	// a points right; b points left
+	return cmp.Compare(-ac, bc)
 }
