@@ -1,6 +1,10 @@
 package aoc2019
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 type IntcodeComputer struct {
 	memory  []int
@@ -30,6 +34,15 @@ func NewIntcodeComputer(program []int, input []int) *IntcodeComputer {
 	c.opfns[8] = c.opcode8
 	c.opfns[9] = c.opcode9
 	return c
+}
+
+func ParseIntcodeProgram(input string) []int {
+	var program []int
+	for _, code := range strings.Split(strings.TrimSpace(input), ",") {
+		n, _ := strconv.Atoi(code)
+		program = append(program, n)
+	}
+	return program
 }
 
 // Opcode 1 adds together numbers read from two positions and stores the
