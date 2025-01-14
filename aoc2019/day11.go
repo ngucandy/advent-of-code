@@ -57,7 +57,6 @@ func (d Day11) Part2(input string) {
 	cdir := 0 // up
 	r, c := 0, 0
 	grid := make(map[[2]int]int)
-	grid[[2]int{0, 0}] = 1
 	minRow, minCol, maxRow, maxCol := 0, 0, 0, 0
 	for comp.Step() {
 		if len(comp.output) < 2 {
