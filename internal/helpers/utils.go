@@ -55,6 +55,14 @@ func PrintGrid(grid [][]rune) {
 	}
 }
 
+func CloneGrid[E any](grid [][]E) [][]E {
+	var dst [][]E
+	for _, row := range grid {
+		dst = append(dst, append([]E{}, row...))
+	}
+	return dst
+}
+
 func PrintIntGrid(grid [][]int) {
 	for _, row := range grid {
 		s := ""
