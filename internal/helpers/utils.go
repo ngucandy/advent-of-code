@@ -3,6 +3,7 @@ package helpers
 import (
 	"fmt"
 	"log/slog"
+	"runtime"
 	"strconv"
 	"time"
 )
@@ -41,9 +42,11 @@ func CartesianProductN[T any](set []T, n int) (result [][]T) {
 	return CartesianProduct(sets)
 }
 
-func TrackTime(start time.Time, name string) {
+func TrackTime(start time.Time) {
 	elapsed := time.Since(start)
-	slog.Info("Time:", "name", name, "took", elapsed)
+	pc, _, _, _ := runtime.Caller(1)
+	f := runtime.FuncForPC(pc)
+	slog.Info("Time:", "took", elapsed, "func", f.Name())
 }
 
 func PrintGrid(grid [][]rune) {
