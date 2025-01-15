@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/ngucandy/advent-of-code/aoc2019"
+	"github.com/ngucandy/advent-of-code/aoc2024"
 )
 
 type AocDay interface {
@@ -22,6 +23,8 @@ func main() {
 	switch year {
 	case "2019":
 		m = aoc2019.DayMap
+	case "2024":
+		m = aoc2024.DayMap
 	default:
 		panic("unsupported aoc year: " + year)
 	}
