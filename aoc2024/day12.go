@@ -1,45 +1,35 @@
-package main
+package aoc2024
 
 import (
-	"bufio"
 	"cmp"
-	"log/slog"
-	"os"
+	"fmt"
 	"slices"
+	"strings"
 )
 
 var (
-	DIRECTION_UP    = [2]int{0, -1}
-	DIRECTION_DOWN  = [2]int{0, 1}
-	DIRECTION_LEFT  = [2]int{-1, 0}
-	DIRECTION_RIGHT = [2]int{1, 0}
+	up    = [2]int{0, -1}
+	down  = [2]int{0, 1}
+	left  = [2]int{-1, 0}
+	right = [2]int{1, 0}
 
-	DIRECTIONS = [][2]int{DIRECTION_RIGHT, DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_UP}
+	directions = [][2]int{right, down, left, up}
 )
 
-func main() {
-	infile := os.Args[1]
-	slog.Info("Reading input file:", "name", infile)
-	file, _ := os.Open(infile)
-	defer func(file *os.File) {
-		_ = file.Close()
-	}(file)
+func init() {
+	DayMap["12"] = Day12{}
+}
 
-	grid := [][]rune{}
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if len(line) == 0 {
-			continue
-		}
+type Day12 struct {
+	example string
+}
+
+func (d Day12) Part1(input string) {
+	var grid [][]rune
+	for _, line := range strings.Split(input, "\n") {
 		grid = append(grid, []rune(line))
 	}
 
-	part1(grid)
-	part2(grid)
-}
-
-func part1(grid [][]rune) {
 	total := 0
 	visited := make(map[[2]int]bool)
 	for y := 0; y < len(grid); y++ {
@@ -51,29 +41,15 @@ func part1(grid [][]rune) {
 			total += a * p
 		}
 	}
-	slog.Info("Part 1:", "total", total)
+	fmt.Println("part1", total)
 }
 
-func areaPerimeter(x int, y int, plant rune, grid [][]rune, visited map[[2]int]bool) (area int, perimeter int) {
-	if x < 0 || x >= len(grid[0]) || y < 0 || y >= len(grid) || plant != grid[y][x] {
-		return 0, 1
+func (d Day12) Part2(input string) {
+	var grid [][]rune
+	for _, line := range strings.Split(input, "\n") {
+		grid = append(grid, []rune(line))
 	}
-	if _, ok := visited[[2]int{x, y}]; ok {
-		return 0, 0
-	}
-	visited[[2]int{x, y}] = true
-	area = 1
-	perimeter = 0
 
-	for _, direction := range DIRECTIONS {
-		aNext, pNext := areaPerimeter(x+direction[0], y+direction[1], plant, grid, visited)
-		area += aNext
-		perimeter += pNext
-	}
-	return area, perimeter
-}
-
-func part2(grid [][]rune) {
 	total := 0
 	regions := [][][2]int{}
 	visited := make(map[[2]int]bool)
@@ -95,7 +71,26 @@ func part2(grid [][]rune) {
 		area := len(region)
 		total += area * sides
 	}
-	slog.Info("Part 2:", "total", total)
+	fmt.Println("part2", total)
+}
+
+func areaPerimeter(x int, y int, plant rune, grid [][]rune, visited map[[2]int]bool) (area int, perimeter int) {
+	if x < 0 || x >= len(grid[0]) || y < 0 || y >= len(grid) || plant != grid[y][x] {
+		return 0, 1
+	}
+	if _, ok := visited[[2]int{x, y}]; ok {
+		return 0, 0
+	}
+	visited[[2]int{x, y}] = true
+	area = 1
+	perimeter = 0
+
+	for _, direction := range directions {
+		aNext, pNext := areaPerimeter(x+direction[0], y+direction[1], plant, grid, visited)
+		area += aNext
+		perimeter += pNext
+	}
+	return area, perimeter
 }
 
 func fill(x int, y int, plant rune, grid [][]rune, visited map[[2]int]bool) [][2]int {
@@ -107,7 +102,7 @@ func fill(x int, y int, plant rune, grid [][]rune, visited map[[2]int]bool) [][2
 	}
 	visited[[2]int{x, y}] = true
 	region := [][2]int{{x, y}}
-	for _, direction := range DIRECTIONS {
+	for _, direction := range directions {
 		region = append(region, fill(x+direction[0], y+direction[1], plant, grid, visited)...)
 	}
 	return region
@@ -115,13 +110,13 @@ func fill(x int, y int, plant rune, grid [][]rune, visited map[[2]int]bool) [][2
 
 func countSides(region map[[2]int]bool) int {
 	sides := make(map[[2]int][][2]int)
-	sides[DIRECTION_UP] = [][2]int{}
-	sides[DIRECTION_DOWN] = [][2]int{}
-	sides[DIRECTION_RIGHT] = [][2]int{}
-	sides[DIRECTION_LEFT] = [][2]int{}
+	sides[up] = [][2]int{}
+	sides[down] = [][2]int{}
+	sides[right] = [][2]int{}
+	sides[left] = [][2]int{}
 
 	for plot := range region {
-		for _, direction := range DIRECTIONS {
+		for _, direction := range directions {
 			next := [2]int{plot[0] + direction[0], plot[1] + direction[1]}
 			if _, ok := region[next]; !ok {
 				sides[direction] = append(sides[direction], plot)
@@ -143,10 +138,10 @@ func countSides(region map[[2]int]bool) int {
 	}
 
 	cmpFuncs := make(map[[2]int]func([2]int, [2]int) int)
-	cmpFuncs[DIRECTION_UP] = cmpHoriz
-	cmpFuncs[DIRECTION_DOWN] = cmpHoriz
-	cmpFuncs[DIRECTION_LEFT] = cmpVert
-	cmpFuncs[DIRECTION_RIGHT] = cmpVert
+	cmpFuncs[up] = cmpHoriz
+	cmpFuncs[down] = cmpHoriz
+	cmpFuncs[left] = cmpVert
+	cmpFuncs[right] = cmpVert
 
 	countHoriz := func(items [][2]int) int {
 		n := 1
@@ -177,13 +172,13 @@ func countSides(region map[[2]int]bool) int {
 		return n
 	}
 	countFuncs := make(map[[2]int]func([][2]int) int)
-	countFuncs[DIRECTION_UP] = countHoriz
-	countFuncs[DIRECTION_DOWN] = countHoriz
-	countFuncs[DIRECTION_LEFT] = countVert
-	countFuncs[DIRECTION_RIGHT] = countVert
+	countFuncs[up] = countHoriz
+	countFuncs[down] = countHoriz
+	countFuncs[left] = countVert
+	countFuncs[right] = countVert
 
 	total := 0
-	for _, direction := range DIRECTIONS {
+	for _, direction := range directions {
 		slices.SortFunc(sides[direction], cmpFuncs[direction])
 		count := countFuncs[direction](sides[direction])
 		total += count
