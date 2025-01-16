@@ -41,7 +41,7 @@ func (d Day17) Part1(input string) {
 	}
 
 	output := d.run(program, a, b, c)
-	fmt.Println("part1", helpers.IntJoin(output, ","))
+	fmt.Println("part1", helpers.Join(output, ","))
 }
 
 func (d Day17) Part2(input string) {
