@@ -1,47 +1,35 @@
-package main
+package aoc2024
 
 import (
-	"bufio"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
 	"image/png"
-	"log/slog"
 	"os"
-	"regexp"
-	"strconv"
-	"sync"
+	"path/filepath"
+	"strings"
+
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 )
 
-func main() {
-	infile := os.Args[1]
-	slog.Info("Reading input file:", "name", infile)
-	file, _ := os.Open(infile)
-	defer func(file *os.File) {
-		_ = file.Close()
-	}(file)
-
-	// e.g., p=92,72 v=-49,-72
-	rexpNums := regexp.MustCompile(`-?\d+`)
-	robots := [][2][2]int{}
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		nums := rexpNums.FindAllString(line, -1)
-		px, _ := strconv.Atoi(nums[0])
-		py, _ := strconv.Atoi(nums[1])
-		vx, _ := strconv.Atoi(nums[2])
-		vy, _ := strconv.Atoi(nums[3])
-		robot := [2][2]int{{px, py}, {vx, vy}}
-		robots = append(robots, robot)
-	}
-
-	part1(robots)
-	part2(robots)
+func init() {
+	DayMap["14"] = Day14{}
 }
 
-func part1(robots [][2][2]int) {
+type Day14 struct {
+	example string
+}
+
+func (d Day14) Part1(input string) {
+	var robots [][2][2]int
+	for _, line := range strings.Split(input, "\n") {
+		// e.g., p=92,72 v=-49,-72
+		var px, py, vx, vy int
+		_, _ = fmt.Sscanf(line, "p=%d,%d v=%d,%d", &px, &py, &vx, &vy)
+		robots = append(robots, [2][2]int{{px, py}, {vx, vy}})
+	}
+
 	rows := 103
 	cols := 101
 	seconds := 100
@@ -65,27 +53,30 @@ func part1(robots [][2][2]int) {
 			q1++
 			continue
 		}
-		if endx < cols/2 && endy > rows/2 {
+		if endx < cols/2 {
 			q2++
 			continue
 		}
-		if endx > cols/2 && endy < rows/2 {
+		if endy < rows/2 {
 			q3++
 			continue
 		}
-		if endx > cols/2 && endy > rows/2 {
-			q4++
-			continue
-		}
+		q4++
 	}
-	slog.Info("Part 1:", "safety factor", q1*q2*q3*q4, "q1", q1, "q2", q2, "q3", q3, "q4", q4)
+	fmt.Println("part1", q1*q2*q3*q4)
 }
+func (d Day14) Part2(input string) {
+	var robots [][2][2]int
+	for _, line := range strings.Split(input, "\n") {
+		// e.g., p=92,72 v=-49,-72
+		var px, py, vx, vy int
+		_, _ = fmt.Sscanf(line, "p=%d,%d v=%d,%d", &px, &py, &vx, &vy)
+		robots = append(robots, [2][2]int{{px, py}, {vx, vy}})
+	}
 
-func part2(robots [][2][2]int) {
 	rows := 103
 	cols := 101
 	seconds := 0
-	wg := sync.WaitGroup{}
 	for {
 		seconds++
 		graph := make([][]rune, rows)
@@ -104,7 +95,7 @@ func part2(robots [][2][2]int) {
 
 			endx := (((velx*seconds + startx) % cols) + cols) % cols
 			endy := (((vely*seconds + starty) % rows) + rows) % rows
-			graph[endy][endx] = '#'
+			graph[endy][endx] = '\u2588'
 
 			// look for a robot surrounded by robots on all sides
 			localcluster := true
@@ -115,24 +106,20 @@ func part2(robots [][2][2]int) {
 					localcluster = false
 					break
 				}
-				if graph[neighbory][neighborx] != '#' {
+				if graph[neighbory][neighborx] != '\u2588' {
 					localcluster = false
 					break
 				}
 			}
 			cluster = cluster || localcluster
 		}
-		wg.Add(1)
-		go func(graph [][]rune, frame int) {
-			defer wg.Done()
-			makeImage(rows, cols, graph, frame)
-		}(graph, seconds)
 		if cluster {
+			helpers.PrintGrid(graph)
+			makeImage(rows, cols, graph, seconds)
 			break
 		}
 	}
-	slog.Info("Part 2:", "seconds", seconds)
-	wg.Wait()
+	fmt.Println("part2", seconds)
 }
 
 func makeImage(rows, cols int, graph [][]rune, frame int) {
@@ -141,7 +128,7 @@ func makeImage(rows, cols int, graph [][]rune, frame int) {
 	c := color.RGBA{0, 255, 0, 0xff}
 	for row := 0; row < len(graph); row++ {
 		for col := 0; col < len(graph[row]); col++ {
-			if graph[row][col] == '#' {
+			if graph[row][col] == '\u2588' {
 				x := col * scale
 				y := row * scale
 				r := image.Rect(x, y, x+scale, y+scale)
@@ -149,9 +136,10 @@ func makeImage(rows, cols int, graph [][]rune, frame int) {
 			}
 		}
 	}
-	f, err := os.Create(fmt.Sprintf("aoc2024/day14/%04d.png", frame))
+	cwd, _ := os.Getwd()
+	f, err := os.Create(filepath.Join(cwd, "aoc2024", "day14", fmt.Sprintf("%04d.png", frame)))
 	if err != nil {
 		panic(err)
 	}
-	png.Encode(f, img)
+	_ = png.Encode(f, img)
 }
