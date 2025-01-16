@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -99,4 +100,8 @@ func AbsInt(x int) int {
 		return -x
 	}
 	return x
+}
+
+func Join[E any](a []E, sep string) string {
+	return strings.Trim(strings.Join(strings.Split(fmt.Sprint(a), " "), sep), "[]")
 }
