@@ -2,12 +2,13 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
-	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"log/slog"
 	"math"
 	"os"
 	"time"
+
+	"github.com/ngucandy/advent-of-code/internal/helpers"
+	"github.com/ngucandy/advent-of-code/internal/queue"
 )
 
 func main() {
@@ -58,40 +59,18 @@ type state struct {
 	nodes     [][2]int
 }
 
-type pqueue []state
-
-func (pq pqueue) Len() int {
-	return len(pq)
-}
-
-func (pq pqueue) Less(i, j int) bool {
-	return pq[i].cost < pq[j].cost
-}
-
-func (pq pqueue) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-}
-
-func (pq *pqueue) Push(x interface{}) {
-	*pq = append(*pq, x.(state))
-}
-
-func (pq *pqueue) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	x := old[n-1]
-	*pq = old[0 : n-1]
-	return x
+func (s state) Cost() int {
+	return s.cost
 }
 
 func part1(maze [][]rune, s [2]int, e [2]int) {
-	defer helpers.TrackTime(time.Now(), "part1")
-	pq := pqueue{state{0, s[0], s[1], 0, [][2]int{}}}
+	defer helpers.TrackTime(time.Now())
+	pq := queue.PQ[state]{}
+	pq.Push(state{0, s[0], s[1], 0, [][2]int{}})
 	seen := make(map[[3]int]bool)
-	heap.Init(&pq)
 
-	for len(pq) > 0 {
-		st := heap.Pop(&pq).(state)
+	for pq.Len() > 0 {
+		st := pq.Pop()
 		cost := st.cost
 		cx := st.x
 		cy := st.y
@@ -114,23 +93,23 @@ func part1(maze [][]rune, s [2]int, e [2]int) {
 		left := state{cost + 1000, cx, cy, ldir, st.nodes}
 		right := state{cost + 1000, cx, cy, rdir, st.nodes}
 		if maze[forward.y][forward.x] != '#' {
-			heap.Push(&pq, forward)
+			pq.Push(forward)
 		}
-		heap.Push(&pq, left)
-		heap.Push(&pq, right)
+		pq.Push(left)
+		pq.Push(right)
 	}
 }
 
 func part2(maze [][]rune, s [2]int, e [2]int) {
-	defer helpers.TrackTime(time.Now(), "part2")
-	pq := pqueue{state{0, s[0], s[1], 0, [][2]int{}}}
+	defer helpers.TrackTime(time.Now())
+	pq := queue.PQ[state]{}
+	pq.Push(state{0, s[0], s[1], 0, [][2]int{}})
 	seen := make(map[[3]int]int)
-	heap.Init(&pq)
 	bestCost := math.MaxInt
 	bestPaths := [][2]int{}
 
-	for len(pq) > 0 {
-		st := heap.Pop(&pq).(state)
+	for pq.Len() > 0 {
+		st := pq.Pop()
 		cost := st.cost
 		cx := st.x
 		cy := st.y
@@ -168,10 +147,10 @@ func part2(maze [][]rune, s [2]int, e [2]int) {
 		left := state{cost + 1000, cx, cy, ldir, append([][2]int{}, st.nodes...)}
 		right := state{cost + 1000, cx, cy, rdir, append([][2]int{}, st.nodes...)}
 		if maze[forward.y][forward.x] != '#' {
-			heap.Push(&pq, forward)
+			pq.Push(forward)
 		}
-		heap.Push(&pq, left)
-		heap.Push(&pq, right)
+		pq.Push(left)
+		pq.Push(right)
 	}
 
 	paths := make(map[[2]int]bool)
