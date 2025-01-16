@@ -34,18 +34,18 @@ func (s *store) Pop() (x any) {
 }
 
 // PQ is a priority queue implementation.
-type PQ struct {
+type PQ[E Item] struct {
 	q store
 }
 
-func (pq *PQ) Push(i Item) {
-	heap.Push(&pq.q, i)
+func (pq *PQ[E]) Push(item E) {
+	heap.Push(&pq.q, item)
 }
 
-func (pq *PQ) Pop() Item {
-	return heap.Pop(&pq.q).(Item)
+func (pq *PQ[E]) Pop() E {
+	return heap.Pop(&pq.q).(E)
 }
 
-func (pq *PQ) Len() int {
+func (pq *PQ[E]) Len() int {
 	return len(pq.q)
 }
