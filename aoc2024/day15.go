@@ -53,10 +53,7 @@ func (d Day15) Part1(input string) {
 			sr, sc = r, c
 		}
 	}
-	var movements string
-	for _, line := range strings.Split(sections[1], "\n") {
-		movements += line
-	}
+	movements := strings.Join(strings.Split(sections[1], "\n"), "")
 
 	rr, rc := sr, sc
 	for _, m := range movements {
@@ -112,19 +109,17 @@ func (d Day15) Part2(input string) {
 			sr, sc = r, c
 		}
 	}
-	var movements string
-	for _, line := range strings.Split(sections[1], "\n") {
-		movements += line
-	}
+	movements := strings.Join(strings.Split(sections[1], "\n"), "")
 
 	rr, rc := sr, sc
 	for _, m := range movements {
 		if m == '<' || m == '>' {
+			// moving left or right is the same as part1
 			if d.move(rr, rc, m, grid) {
 				rr += d.directions[m][0]
 				rc += d.directions[m][1]
 			}
-		} else {
+		} else { // moving up or down
 			if d.blocked(rr, rc, m, grid) {
 				continue
 			}
@@ -146,8 +141,13 @@ func (d Day15) Part2(input string) {
 }
 
 func (d Day15) moveUpOrDown(r, c int, m rune, grid [][]rune) {
+	// extra?
+	if d.blocked(r, c, m, grid) {
+		panic(fmt.Sprintf("cannot move %c because path is blocked", m))
+	}
 	nr := r + d.directions[m][0]
-	// move the robot
+
+	// moving the robot only requires changing a single grid position
 	if grid[r][c] == '@' {
 		switch grid[nr][c] {
 		// unobstructed
@@ -169,57 +169,31 @@ func (d Day15) moveUpOrDown(r, c int, m rune, grid [][]rune) {
 			panic(fmt.Sprintf("foreign object in grid[%d][%d]: %c", nr, c, grid[nr][c]))
 		}
 	}
-	// move a box
 
-	// box is unobstructed
-	// e.g., direction ^
-	// ....
-	//  []
-	if grid[nr][c] == '.' && grid[nr][c+1] == '.' {
-		grid[nr][c], grid[nr][c+1] = '[', ']'
-		grid[r][c], grid[r][c+1] = '.', '.'
-		return
-	}
-
-	// box is obstructed by two boxes
-	// e.g., direction ^
-	// [][]
-	// .[].
-	if grid[nr][c] == ']' && grid[nr][c+1] == '[' {
+	// moving a box requires changing two grid positions
+	if grid[nr][c] == ']' && grid[nr][c+1] == '[' { // box is obstructed by two boxes
+		// e.g., direction ^
+		// [][]
+		// .[].
 		d.moveUpOrDown(nr, c-1, m, grid)
 		d.moveUpOrDown(nr, c+1, m, grid)
-		grid[nr][c], grid[nr][c+1] = '[', ']'
-		grid[r][c], grid[r][c+1] = '.', '.'
-		return
-	}
-
-	// box obstructed by right half of one box
-	// e.g., direction ^
-	// []..
-	// .[].
-	if grid[nr][c] == ']' && grid[nr][c+1] == '.' {
+	} else if grid[nr][c] == ']' && grid[nr][c+1] == '.' { // box obstructed by right half of single box
+		// e.g., direction ^
+		// []..
+		// .[].
 		d.moveUpOrDown(nr, c-1, m, grid)
-		grid[nr][c], grid[nr][c+1] = '[', ']'
-		grid[r][c], grid[r][c+1] = '.', '.'
-		return
-	}
-
-	// box obstructed by left half of one box
-	// e.g., direction ^
-	// ..[]
-	// .[].
-	if grid[nr][c] == '.' && grid[nr][c+1] == '[' {
+	} else if grid[nr][c] == '.' && grid[nr][c+1] == '[' { // box obstructed by left half of single box
+		// e.g., direction ^
+		// ..[]
+		// .[].
 		d.moveUpOrDown(nr, c+1, m, grid)
-		grid[nr][c], grid[nr][c+1] = '[', ']'
-		grid[r][c], grid[r][c+1] = '.', '.'
-		return
-	}
+	} else if grid[nr][c] == '[' && grid[nr][c+1] == ']' { // box is obstructed by box directly aligned
+		// e.g., direction ^
+		// .[].
+		// .[].
+		d.moveUpOrDown(nr, c, m, grid)
+	} // else box is unobstructed
 
-	// box is obstructed by box directly aligned
-	// e.g., direction ^
-	// .[].
-	// .[].
-	d.moveUpOrDown(nr, c, m, grid)
 	grid[nr][c], grid[nr][c+1] = '[', ']'
 	grid[r][c], grid[r][c+1] = '.', '.'
 }
