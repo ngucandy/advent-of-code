@@ -1,46 +1,36 @@
-package main
+package aoc2024
 
 import (
-	"bufio"
-	"log/slog"
-	"os"
-	"regexp"
-	"strconv"
+	"fmt"
+	"strings"
 )
 
-func main() {
-	infile := os.Args[1]
-	slog.Info("Reading input file:", "name", infile)
-	file, _ := os.Open(infile)
-	defer func(file *os.File) {
-		_ = file.Close()
-	}(file)
-
-	rexpDigits := regexp.MustCompile(`\d+`)
-	machines := [][][2]float64{}
-	machine := [][2]float64{}
-	scanner := bufio.NewScanner(file)
-	for {
-		for range 3 {
-			scanner.Scan()
-			line := scanner.Text()
-			nums := rexpDigits.FindAllString(line, -1)
-			x, _ := strconv.ParseFloat(nums[0], 64)
-			y, _ := strconv.ParseFloat(nums[1], 64)
-			machine = append(machine, [2]float64{x, y})
-		}
-		machines = append(machines, machine)
-		if !scanner.Scan() {
-			break
-		}
-		machine = [][2]float64{}
-	}
-
-	part1(machines)
-	part2(machines)
+func init() {
+	DayMap["13"] = Day13{}
 }
 
-func part1(machines [][][2]float64) {
+type Day13 struct {
+	example string
+}
+
+func (d Day13) Part1(input string) {
+	var machines [][][2]float64
+	for _, section := range strings.Split(input, "\n\n") {
+		// Button A: X+94, Y+34
+		// Button B: X+22, Y+67
+		// Prize: X=8400, Y=5400
+		lines := strings.Split(section, "\n")
+		var ax, ay, bx, by, px, py int
+		_, _ = fmt.Sscanf(lines[0], "Button A: X%d, Y%d", &ax, &ay)
+		_, _ = fmt.Sscanf(lines[1], "Button B: X%d, Y%d", &bx, &by)
+		_, _ = fmt.Sscanf(lines[2], "Prize: X=%d, Y=%d", &px, &py)
+		machines = append(machines, [][2]float64{
+			{float64(ax), float64(ay)},
+			{float64(bx), float64(by)},
+			{float64(px), float64(py)},
+		})
+	}
+
 	tokens := 0.0
 
 	a := 0
@@ -72,21 +62,36 @@ func part1(machines [][][2]float64) {
 		pressesB := ((machine[a][x] * machine[p][y]) - (machine[p][x] * machine[a][y])) / ((machine[a][x] * machine[b][y]) - (machine[b][x] * machine[a][y]))
 		if !isWholeNumber(pressesB) {
 			// reject fractional button presses
-			//slog.Error("Invalid number of B presses:", "presses", pressesB)
 			continue
 		}
 		pressesA := ((machine[p][x]) - (pressesB * machine[b][x])) / (machine[a][x])
 		if !isWholeNumber(pressesA) {
 			// reject fractional button presses
-			//slog.Error("Invalid number of A presses:", "presses", pressesB)
 			continue
 		}
 		tokens += (pressesA * 3.0) + pressesB
 	}
-	slog.Info("Part 1:", "tokens", int64(tokens))
+	fmt.Println("part1", int(tokens))
 }
 
-func part2(machines [][][2]float64) {
+func (d Day13) Part2(input string) {
+	var machines [][][2]float64
+	for _, section := range strings.Split(input, "\n\n") {
+		// Button A: X+94, Y+34
+		// Button B: X+22, Y+67
+		// Prize: X=8400, Y=5400
+		lines := strings.Split(section, "\n")
+		var ax, ay, bx, by, px, py int
+		_, _ = fmt.Sscanf(lines[0], "Button A: X%d, Y%d", &ax, &ay)
+		_, _ = fmt.Sscanf(lines[1], "Button B: X%d, Y%d", &bx, &by)
+		_, _ = fmt.Sscanf(lines[2], "Prize: X=%d, Y=%d", &px, &py)
+		machines = append(machines, [][2]float64{
+			{float64(ax), float64(ay)},
+			{float64(bx), float64(by)},
+			{float64(px), float64(py)},
+		})
+	}
+
 	tokens := 0.0
 
 	a := 0
@@ -101,18 +106,16 @@ func part2(machines [][][2]float64) {
 		pressesB := ((machine[a][x] * machine[p][y]) - (machine[p][x] * machine[a][y])) / ((machine[a][x] * machine[b][y]) - (machine[b][x] * machine[a][y]))
 		if !isWholeNumber(pressesB) {
 			// reject fractional button presses
-			//slog.Error("Invalid number of B presses:", "presses", pressesB)
 			continue
 		}
 		pressesA := ((machine[p][x]) - (pressesB * machine[b][x])) / (machine[a][x])
 		if !isWholeNumber(pressesA) {
 			// reject fractional button presses
-			//slog.Error("Invalid number of A presses:", "presses", pressesB)
 			continue
 		}
 		tokens += (pressesA * 3.0) + pressesB
 	}
-	slog.Info("Part 2:", "tokens", int64(tokens))
+	fmt.Println("part2", int(tokens))
 }
 
 func isWholeNumber(number float64) bool {
