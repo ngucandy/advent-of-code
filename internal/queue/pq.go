@@ -1,4 +1,4 @@
-package pq
+package queue
 
 import "container/heap"
 
@@ -44,4 +44,8 @@ func (pq *PQ) Push(i Item) {
 
 func (pq *PQ) Pop() Item {
 	return heap.Pop(&pq.q).(Item)
+}
+
+func (pq *PQ) Len() int {
+	return len(pq.q)
 }
