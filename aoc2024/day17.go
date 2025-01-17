@@ -73,7 +73,6 @@ func (d Day17) Part2(input string) {
 		for {
 			output := d.run(program, a, 0, 0)
 			if slices.Equal(program[i:], output) {
-				fmt.Println(a, program[i:])
 				break
 			}
 			a++

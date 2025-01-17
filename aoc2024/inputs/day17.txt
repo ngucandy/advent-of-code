@@ -3,3 +3,31 @@ Register B: 0
 Register C: 0
 
 Program: 2,4,1,5,7,5,1,6,0,3,4,2,5,5,3,0
+
+# notes - solution doesn't read past "Program..." line
+2,4  b = a % 8 (keep lowest 3 bits)
+1,5  b = b ^ 5 (b ^ 101 - flips 1st and 3rd bits)
+7,5  c = a / 2**b (divide a by 1, 2, 4, 8, 16, 32, 64 or 128)
+1,6  b = b ^ 6 (b ^ 110 - flips 2nd and 3rd bits)
+0,3  a = a >> 3 (a / 8 - drop lowest 3 bits of a)
+4,2  b = b ^ c (we only care about what this does to the first 3 bits of b)
+5,5  out(b >> 3) (output 0-7)
+3,0  goto 0 if a > 0 (restart program from beginning)
+
+000 ^ 101 -> 101 (000 -> 101)
+001 ^ 101 -> 100 (001 -> 100)
+010 ^ 101 -> 111 (010 -> 111)
+011 ^ 101 -> 110 (011 -> 110)
+100 ^ 101 -> 001 (100 -> 001)
+101 ^ 101 -> 000 (101 -> 000)
+110 ^ 101 -> 011 (110 -> 011)
+111 ^ 101 -> 010 (111 -> 010)
+
+000 ^ 110 -> 110 (000 -> 110)
+001 ^ 110 -> 111 (001 -> 111)
+010 ^ 110 -> 100 (010 -> 100)
+011 ^ 110 -> 101 (011 -> 101)
+100 ^ 110 -> 010 (100 -> 010)
+101 ^ 110 -> 011 (101 -> 011)
+110 ^ 110 -> 000 (110 -> 000)
+111 ^ 110 -> 001 (111 -> 001)
