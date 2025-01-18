@@ -1,5 +1,5 @@
 package aoc2019
 
 var (
-	DayMap = make(map[string]interface{})
+	Days = make(map[string]interface{})
 )

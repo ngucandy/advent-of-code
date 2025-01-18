@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	DayMap["3"] = Day3{
+	Days["3"] = Day3{
 		`R8,U5,L5,D3
 U7,R6,D4,L4`,
 		`R75,D30,R83,U83,L12,D49,R71,U7,L72

@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	DayMap["9"] = Day9{
+	Days["9"] = Day9{
 		`2333133121414131402`,
 	}
 }

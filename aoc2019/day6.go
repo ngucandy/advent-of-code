@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	DayMap["6"] = Day6{
+	Days["6"] = Day6{
 		`COM)B
 B)C
 C)D

@@ -22,9 +22,9 @@ func main() {
 	var m map[string]interface{}
 	switch year {
 	case "2019":
-		m = aoc2019.DayMap
+		m = aoc2019.Days
 	case "2024":
-		m = aoc2024.DayMap
+		m = aoc2024.Days
 	default:
 		panic("unsupported aoc year: " + year)
 	}

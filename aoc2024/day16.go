@@ -24,7 +24,7 @@ func (s Day16State) Cost() int {
 }
 
 func init() {
-	DayMap["16"] = Day16{
+	Days["16"] = Day16{
 		eg1: `###############
 #.......#....E#
 #.#.###.#.###.#

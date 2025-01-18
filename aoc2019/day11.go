@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	DayMap["11"] = Day11{}
+	Days["11"] = Day11{}
 }
 
 type Day11 struct {

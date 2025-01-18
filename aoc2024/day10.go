@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	DayMap["10"] = Day10{
+	Days["10"] = Day10{
 		`89010123
 78121874
 87430965

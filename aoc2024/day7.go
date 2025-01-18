@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	DayMap["7"] = Day7{
+	Days["7"] = Day7{
 		`190: 10 19
 3267: 81 40 27
 83: 17 5

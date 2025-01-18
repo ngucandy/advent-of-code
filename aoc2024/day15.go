@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	DayMap["15"] = Day15{
+	Days["15"] = Day15{
 		example: `##########
 #..O..O.O#
 #......O.#

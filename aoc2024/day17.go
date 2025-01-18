@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	DayMap["17"] = Day17{
+	Days["17"] = Day17{
 		eg1: `Register A: 729
 Register B: 0
 Register C: 0
