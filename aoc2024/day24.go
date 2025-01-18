@@ -45,7 +45,7 @@ func (d Day24) Part1(input string) {
 	// connect the gates
 	for _, gate := range gates {
 		for _, missing := range gate.MissingConnections() {
-			gate.ConnectIn(suppliers[missing])
+			gate.ConnectInput(suppliers[missing])
 		}
 	}
 
@@ -149,13 +149,13 @@ func (d Day24) Part2(input string) {
 	// lowest output bit uses a half adder
 	var adder Adder
 	adder = &HalfAdder{a: "x00", b: "y00"}
-	adder.Fill("", mapping)
+	adder.Assemble("", mapping)
 	adders = append(adders, adder)
 	last := adder
 	for _, z := range zs[1 : len(zs)-1] { // highest output bit is the carry from the last full adder
 		a, b := "x"+z[1:], "y"+z[1:]
 		adder = &FullAdder{a: a, b: b}
-		crossed = append(adder.Fill(last.Carry(), mapping), crossed...)
+		crossed = append(adder.Assemble(last.Carry(), mapping), crossed...)
 		adders = append(adders, adder)
 		last = adder
 	}
@@ -165,7 +165,7 @@ func (d Day24) Part2(input string) {
 
 type Adder interface {
 	Carry() string
-	Fill(string, map[[2]string][][2]string) []string
+	Assemble(string, map[[2]string][][2]string) []string
 }
 
 type FullAdder struct {
@@ -178,7 +178,7 @@ type FullAdder struct {
 	an1, an2 string
 }
 
-func (f *FullAdder) Fill(c string, m map[[2]string][][2]string) []string {
+func (f *FullAdder) Assemble(c string, m map[[2]string][][2]string) []string {
 	f.c = c
 
 	// ensures keys are sorted
@@ -302,7 +302,7 @@ type HalfAdder struct {
 	sum, carry string
 }
 
-func (h *HalfAdder) Fill(_ string, m map[[2]string][][2]string) []string {
+func (h *HalfAdder) Assemble(_ string, m map[[2]string][][2]string) []string {
 	targets := m[[2]string{h.a, h.b}]
 
 	for _, target := range targets {
@@ -336,10 +336,7 @@ type Supplier interface {
 	Supply() int
 	Name() string
 	Type() string
-	ConnectIn(Supplier)
-	ConnectOut(Supplier)
-	Outputs() []Supplier
-	Inputs() []Supplier
+	ConnectOutput(Supplier)
 }
 
 func compareSuppliers(a, b Supplier) int {
@@ -360,25 +357,7 @@ func NewSwitch(on int, name string) *Switch {
 	return &Switch{on: on, n: name, outConns: make(map[Supplier]struct{})}
 }
 
-func (s *Switch) Inputs() []Supplier {
-	// switches have no inputs
-	return nil
-}
-
-func (s *Switch) Outputs() []Supplier {
-	var outputs []Supplier
-	for c := range s.outConns {
-		outputs = append(outputs, c)
-	}
-	slices.SortFunc(outputs, compareSuppliers)
-	return outputs
-}
-
-func (s *Switch) ConnectIn(_ Supplier) {
-	panic("switches have no input connections")
-}
-
-func (s *Switch) ConnectOut(t Supplier) {
+func (s *Switch) ConnectOutput(t Supplier) {
 	s.outConns[t] = struct{}{}
 }
 
@@ -426,23 +405,6 @@ func NewGate(t string, n string, ina string, inb string, o int) *Gate {
 	}
 }
 
-func (g *Gate) Inputs() []Supplier {
-	var inputs []Supplier
-	for _, c := range g.inConns {
-		inputs = append(inputs, c)
-	}
-	slices.SortFunc(inputs, compareSuppliers)
-	return inputs
-}
-func (g *Gate) Outputs() []Supplier {
-	var outputs []Supplier
-	for c := range g.outConns {
-		outputs = append(outputs, c)
-	}
-	slices.SortFunc(outputs, compareSuppliers)
-	return outputs
-}
-
 func (g *Gate) MissingConnections() []string {
 	var missing []string
 	for name, conn := range g.inConns {
@@ -454,12 +416,12 @@ func (g *Gate) MissingConnections() []string {
 	return missing
 }
 
-func (g *Gate) ConnectIn(t Supplier) {
+func (g *Gate) ConnectInput(t Supplier) {
 	g.inConns[t.Name()] = t
-	t.ConnectOut(g)
+	t.ConnectOutput(g)
 }
 
-func (g *Gate) ConnectOut(t Supplier) {
+func (g *Gate) ConnectOutput(t Supplier) {
 	g.outConns[t] = struct{}{}
 }
 
