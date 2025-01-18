@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"cmp"
 	"fmt"
 	"slices"
 	"strings"
@@ -151,13 +150,15 @@ func (d Day24) Part2(input string) {
 	adder = &HalfAdder{a: "x00", b: "y00"}
 	adder.Assemble("", mapping)
 	adders = append(adders, adder)
-	last := adder
-	for _, z := range zs[1 : len(zs)-1] { // highest output bit is the carry from the last full adder
+	prev := adder
+	// the rest of the bits use a full adder except for the highest bit which
+	// is just the carry output from the last full adder
+	for _, z := range zs[1 : len(zs)-1] {
 		a, b := "x"+z[1:], "y"+z[1:]
 		adder = &FullAdder{a: a, b: b}
-		crossed = append(adder.Assemble(last.Carry(), mapping), crossed...)
+		crossed = append(adder.Assemble(prev.Carry(), mapping), crossed...)
 		adders = append(adders, adder)
-		last = adder
+		prev = adder
 	}
 	slices.Sort(crossed)
 	fmt.Println("part2", strings.Join(crossed, ","))
@@ -335,16 +336,7 @@ func (h *HalfAdder) String() string {
 type Supplier interface {
 	Supply() int
 	Name() string
-	Type() string
 	ConnectOutput(Supplier)
-}
-
-func compareSuppliers(a, b Supplier) int {
-	c := cmp.Compare(a.Type(), b.Type())
-	if c == 0 {
-		return cmp.Compare(a.Name(), b.Name())
-	}
-	return c
 }
 
 type Switch struct {
@@ -369,9 +361,6 @@ func (s *Switch) Supply() int {
 	return s.on
 }
 
-func (s *Switch) Type() string {
-	return "switch"
-}
 func (s *Switch) String() string {
 	return fmt.Sprintf("switch(n:%s, on:%d, outConns:%v)", s.n, s.on, s.outputNames())
 }
@@ -423,10 +412,6 @@ func (g *Gate) ConnectInput(t Supplier) {
 
 func (g *Gate) ConnectOutput(t Supplier) {
 	g.outConns[t] = struct{}{}
-}
-
-func (g *Gate) Type() string {
-	return g.t
 }
 
 func (g *Gate) Name() string {
