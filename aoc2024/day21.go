@@ -3,6 +3,7 @@ package aoc2024
 import (
 	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -12,106 +13,108 @@ import (
 
 func init() {
 	Days["21"] = Day21{
-		numpadGraph: map[rune]string{
-			'A': "03",
-			'0': "2A",
-			'1': "42",
-			'2': "1530",
-			'3': "26A",
-			'4': "751",
-			'5': "4862",
-			'6': "593",
-			'7': "84",
-			'8': "795",
-			'9': "86",
+		numpad: [][]rune{
+			[]rune("789"),
+			[]rune("456"),
+			[]rune("123"),
+			[]rune("#0A"),
 		},
 
-		numpadDirections: map[string]rune{
-			"A0": '<',
-			"A3": '^',
-			"02": '^',
-			"0A": '>',
-			"14": '^',
-			"12": '>',
-			"21": '<',
-			"25": '^',
-			"23": '>',
-			"20": 'v',
-			"32": '<',
-			"36": '^',
-			"3A": 'v',
-			"47": '^',
-			"45": '>',
-			"41": 'v',
-			"54": '<',
-			"58": '^',
-			"56": '>',
-			"52": 'v',
-			"65": '<',
-			"69": '^',
-			"63": 'v',
-			"78": '>',
-			"74": 'v',
-			"87": '<',
-			"89": '>',
-			"85": 'v',
-			"98": '<',
-			"96": 'v',
+		npButtons: map[rune][2]int{
+			'7': {0, 0},
+			'8': {0, 1},
+			'9': {0, 2},
+			'4': {1, 0},
+			'5': {1, 1},
+			'6': {1, 2},
+			'1': {2, 0},
+			'2': {2, 1},
+			'3': {2, 2},
+			'#': {3, 0},
+			'0': {3, 1},
+			'A': {3, 2},
 		},
 
-		dirpadGraph: map[rune]string{
-			'A': "^>",
-			'^': "vA",
-			'v': "<^>",
-			'<': "v",
-			'>': "vA",
+		dirpad: [][]rune{
+			[]rune("#^A"),
+			[]rune("<v>"),
 		},
 
-		dirpadDirections: map[string]rune{
-			"A^": '<',
-			"A>": 'v',
-			"^v": 'v',
-			"^A": '>',
-			"v<": '<',
-			"v^": '^',
-			"v>": '>',
-			"<v": '>',
-			">v": '<',
-			">A": '^',
+		dpButtons: map[rune][2]int{
+			'#': {0, 0},
+			'^': {0, 1},
+			'A': {0, 2},
+			'<': {1, 0},
+			'v': {1, 1},
+			'>': {1, 2},
 		},
+
+		directions: map[rune][2]int{
+			'^': {-1, 0},
+			'v': {1, 0},
+			'<': {0, -1},
+			'>': {0, 1},
+		},
+
+		cache: make(map[[2]rune][]string),
 	}
 }
 
 type Day21 struct {
-	eg1, eg2         string
-	numpadGraph      map[rune]string
-	numpadDirections map[string]rune
-	dirpadGraph      map[rune]string
-	dirpadDirections map[string]rune
+	eg1, eg2       string
+	numpad, dirpad [][]rune
+	npButtons      map[rune][2]int
+	dpButtons      map[rune][2]int
+	directions     map[rune][2]int
+	cache          map[[2]rune][]string
+}
+
+func (d Day21) paths(s, e rune, grid [][]rune, buttons map[rune][2]int) []string {
+	if paths, exists := d.cache[[2]rune{s, e}]; exists {
+		return paths
+	}
+
+	var paths []string
+	seen := make(map[rune]int)
+	q := [][]rune{{s}, {}}
+	for len(q) > 0 {
+		b := q[0][0]
+		path := q[1]
+		q = q[2:]
+
+		if seenPath, exists := seen[b]; exists && seenPath < len(path) {
+			continue
+		}
+		seen[b] = len(path)
+
+		if b == e {
+			paths = append(paths, string(path)+"A")
+		}
+
+		r, c := buttons[b][0], buttons[b][1]
+		for arrow, dir := range d.directions {
+			nr, nc := r+dir[0], c+dir[1]
+			if nr < 0 || nr >= len(grid) || nc < 0 || nc >= len(grid[0]) || grid[nr][nc] == '#' {
+				continue
+			}
+			nb := grid[nr][nc]
+			q = append(q, []rune{nb}, append(slices.Clone(path), arrow))
+		}
+	}
+	slices.Sort(paths)
+	d.cache[[2]rune{s, e}] = paths
+	return paths
 }
 
 func (d Day21) Part1(input string) {
 	defer helpers.TrackTime(time.Now())
 	total := 0
-	numpadPaths := make(map[string][]string)
-	for _, r1 := range "A0123456789" {
-		for _, r2 := range "A0123456789" {
-			numpadPaths[string(r1)+string(r2)] = d.shortestPaths(r1, r2, d.numpadGraph, d.numpadDirections)
-		}
-	}
-
-	dirpadPaths := make(map[string][]string)
-	for _, r1 := range "A^<v>" {
-		for _, r2 := range "A^<v>" {
-			dirpadPaths[string(r1)+string(r2)] = d.shortestPaths(r1, r2, d.dirpadGraph, d.dirpadDirections)
-		}
-	}
 
 	for _, sequence := range strings.Split(input, "\n") {
 		current := 'A'
 		output := make([][]string, 0)
 		for _, next := range sequence {
-			output = append(output, numpadPaths[string(current)+string(next)])
+			output = append(output, d.paths(current, next, d.numpad, d.npButtons))
 			current = next
 		}
 		nextSequences := make([]string, 0)
@@ -127,7 +130,7 @@ func (d Day21) Part1(input string) {
 				current = 'A'
 				output = make([][]string, 0)
 				for _, next := range dirSequence {
-					output = append(output, dirpadPaths[string(current)+string(next)])
+					output = append(output, d.paths(current, next, d.dirpad, d.dpButtons))
 					current = next
 				}
 				combos = helpers.CartesianProduct(output)
@@ -152,26 +155,13 @@ func (d Day21) Part1(input string) {
 func (d Day21) Part2(input string) {
 	defer helpers.TrackTime(time.Now())
 	total := 0
-	numpadPaths := make(map[string][]string)
-	for _, r1 := range "A0123456789" {
-		for _, r2 := range "A0123456789" {
-			numpadPaths[string(r1)+string(r2)] = d.shortestPaths(r1, r2, d.numpadGraph, d.numpadDirections)
-		}
-	}
-
-	dirpadPaths := make(map[string][]string)
-	for _, r1 := range "A^<v>" {
-		for _, r2 := range "A^<v>" {
-			dirpadPaths[string(r1)+string(r2)] = d.shortestPaths(r1, r2, d.dirpadGraph, d.dirpadDirections)
-		}
-	}
 
 	cache := make(map[[3]int]int)
 	for _, numpadSequence := range strings.Split(input, "\n") {
 		current := 'A'
 		output := make([][]string, 0)
 		for _, next := range numpadSequence {
-			output = append(output, numpadPaths[string(current)+string(next)])
+			output = append(output, d.paths(current, next, d.numpad, d.npButtons))
 			current = next
 		}
 		dirpadSequences := make([]string, 0)
@@ -185,7 +175,7 @@ func (d Day21) Part2(input string) {
 			length := 0
 			current = 'A'
 			for _, next := range seq {
-				length += d.shortestLength(current, next, 25, dirpadPaths, cache)
+				length += d.shortestLength(current, next, 25, cache)
 				current = next
 			}
 			if length > shortest {
@@ -226,9 +216,9 @@ func (d Day21) shortestPaths(start, end rune, graph map[rune]string, directions 
 	return paths
 }
 
-func (d Day21) shortestLength(start, end rune, depth int, paths map[string][]string, cache map[[3]int]int) int {
+func (d Day21) shortestLength(start, end rune, depth int, cache map[[3]int]int) int {
 	if depth == 1 {
-		return len(paths[string(start)+string(end)][0])
+		return len(d.paths(start, end, d.dirpad, d.dpButtons)[0])
 	}
 	k := [3]int{int(start), int(end), depth}
 	if l, ok := cache[k]; ok {
@@ -236,11 +226,11 @@ func (d Day21) shortestLength(start, end rune, depth int, paths map[string][]str
 	}
 
 	shortest := math.MaxInt
-	for _, path := range paths[string(start)+string(end)] {
+	for _, path := range d.paths(start, end, d.dirpad, d.dpButtons) {
 		length := 0
 		current := 'A'
 		for _, next := range path {
-			length += d.shortestLength(current, next, depth-1, paths, cache)
+			length += d.shortestLength(current, next, depth-1, cache)
 			current = next
 		}
 		if length > shortest {
