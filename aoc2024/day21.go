@@ -170,7 +170,7 @@ func (d Day21) Part2(input string) {
 			dirpadSequences = append(dirpadSequences, strings.Join(combo, ""))
 		}
 
-		shortest := math.MaxInt
+		var lengths []int
 		for _, seq := range dirpadSequences {
 			length := 0
 			current = 'A'
@@ -178,42 +178,15 @@ func (d Day21) Part2(input string) {
 				length += d.shortestLength(current, next, 25, cache)
 				current = next
 			}
-			if length > shortest {
-				continue
-			}
-			shortest = length
+			lengths = append(lengths, length)
 		}
+		slices.Sort(lengths)
 		n, _ := strconv.Atoi(numpadSequence[:len(numpadSequence)-1])
-		complexity := n * shortest
+		complexity := n * lengths[0]
 		total += complexity
 
 	}
 	fmt.Println("part2", total)
-}
-
-func (d Day21) shortestPaths(start, end rune, graph map[rune]string, directions map[string]rune) []string {
-	queue := make([]string, 0)
-	seen := make(map[rune]int)
-	queue = append(queue, string(start))
-	paths := make([]string, 0)
-	for len(queue) > 0 {
-		current := queue[0]
-		queue = queue[1:]
-		currentChar := rune(current[len(current)-1])
-		if seenLength, ok := seen[currentChar]; ok && seenLength < len(current) {
-			continue
-		}
-		seen[currentChar] = len(current)
-		if currentChar == end {
-			paths = append(paths, current[:len(current)-1]+"A")
-			continue
-		}
-		neighbors := graph[currentChar]
-		for _, n := range neighbors {
-			queue = append(queue, current[:len(current)-1]+string(directions[string(currentChar)+string(n)])+string(n))
-		}
-	}
-	return paths
 }
 
 func (d Day21) shortestLength(start, end rune, depth int, cache map[[3]int]int) int {
@@ -225,7 +198,7 @@ func (d Day21) shortestLength(start, end rune, depth int, cache map[[3]int]int) 
 		return l
 	}
 
-	shortest := math.MaxInt
+	var lengths []int
 	for _, path := range d.paths(start, end, d.dirpad, d.dpButtons) {
 		length := 0
 		current := 'A'
@@ -233,11 +206,9 @@ func (d Day21) shortestLength(start, end rune, depth int, cache map[[3]int]int) 
 			length += d.shortestLength(current, next, depth-1, cache)
 			current = next
 		}
-		if length > shortest {
-			continue
-		}
-		shortest = length
+		lengths = append(lengths, length)
 	}
-	cache[k] = shortest
-	return shortest
+	slices.Sort(lengths)
+	cache[k] = lengths[0]
+	return lengths[0]
 }
