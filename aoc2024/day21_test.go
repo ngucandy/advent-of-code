@@ -13,7 +13,7 @@ func TestDay21_Part1(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d21 := Days["21"].(Day21)
+			d21 := Days["21"].(*Day21)
 			d := Day21{
 				numpad:     d21.numpad,
 				npButtons:  d21.npButtons,
@@ -35,7 +35,7 @@ func BenchmarkDay21_Part1(b *testing.B) {
 	}
 	for _, tt := range tests {
 		b.Run(tt.name, func(b *testing.B) {
-			d21 := Days["21"].(Day21)
+			d21 := Days["21"].(*Day21)
 			d := Day21{
 				numpad:     d21.numpad,
 				npButtons:  d21.npButtons,
@@ -50,7 +50,7 @@ func BenchmarkDay21_Part1(b *testing.B) {
 }
 
 func TestDay21_paths(t *testing.T) {
-	d21 := Days["21"].(Day21)
+	d21 := Days["21"].(*Day21)
 	type args struct {
 		s       rune
 		e       rune
