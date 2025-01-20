@@ -1,8 +1,8 @@
 package aoc2024
 
 import (
+	"cmp"
 	"fmt"
-	"math"
 	"slices"
 	"strconv"
 	"strings"
@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	Days["21"] = Day21{
+	d := &Day21{
 		numpad: [][]rune{
 			[]rune("789"),
 			[]rune("456"),
@@ -20,33 +20,9 @@ func init() {
 			[]rune("#0A"),
 		},
 
-		npButtons: map[rune][2]int{
-			'7': {0, 0},
-			'8': {0, 1},
-			'9': {0, 2},
-			'4': {1, 0},
-			'5': {1, 1},
-			'6': {1, 2},
-			'1': {2, 0},
-			'2': {2, 1},
-			'3': {2, 2},
-			'#': {3, 0},
-			'0': {3, 1},
-			'A': {3, 2},
-		},
-
 		dirpad: [][]rune{
 			[]rune("#^A"),
 			[]rune("<v>"),
-		},
-
-		dpButtons: map[rune][2]int{
-			'#': {0, 0},
-			'^': {0, 1},
-			'A': {0, 2},
-			'<': {1, 0},
-			'v': {1, 1},
-			'>': {1, 2},
 		},
 
 		directions: map[rune][2]int{
@@ -56,8 +32,23 @@ func init() {
 			'>': {0, 1},
 		},
 
-		cache: make(map[[2]rune][]string),
+		npButtons: make(map[rune][2]int),
+		dpButtons: make(map[rune][2]int),
+		cache:     make(map[[2]rune][]string),
 	}
+
+	for r, row := range d.numpad {
+		for c, ch := range row {
+			d.npButtons[ch] = [2]int{r, c}
+		}
+	}
+
+	for r, row := range d.dirpad {
+		for c, ch := range row {
+			d.dpButtons[ch] = [2]int{r, c}
+		}
+	}
+	Days["21"] = d
 }
 
 type Day21 struct {
@@ -69,38 +60,45 @@ type Day21 struct {
 	cache          map[[2]rune][]string
 }
 
-func (d Day21) paths(s, e rune, grid [][]rune, buttons map[rune][2]int) []string {
+func (d Day21) paths(s, e rune, keypad [][]rune, locations map[rune][2]int) []string {
 	if paths, exists := d.cache[[2]rune{s, e}]; exists {
 		return paths
 	}
 
+	// bfs to find the path from `s` to `e` on the given keypad
 	var paths []string
 	seen := make(map[rune]int)
+	// queue holds button name and the path used to get there
 	q := [][]rune{{s}, {}}
 	for len(q) > 0 {
 		b := q[0][0]
 		path := q[1]
 		q = q[2:]
 
+		// we want all paths with the same length, so only skip if we've seen
+		// this button before with a shorter path
 		if seenPath, exists := seen[b]; exists && seenPath < len(path) {
 			continue
 		}
 		seen[b] = len(path)
 
 		if b == e {
+			// we've reached the desired button so terminate path with an 'A'
 			paths = append(paths, string(path)+"A")
 		}
 
-		r, c := buttons[b][0], buttons[b][1]
+		r, c := locations[b][0], locations[b][1]
 		for arrow, dir := range d.directions {
 			nr, nc := r+dir[0], c+dir[1]
-			if nr < 0 || nr >= len(grid) || nc < 0 || nc >= len(grid[0]) || grid[nr][nc] == '#' {
+			if nr < 0 || nr >= len(keypad) || nc < 0 || nc >= len(keypad[0]) || keypad[nr][nc] == '#' {
 				continue
 			}
-			nb := grid[nr][nc]
+			nb := keypad[nr][nc]
 			q = append(q, []rune{nb}, append(slices.Clone(path), arrow))
 		}
 	}
+	// order of the path doesn't really matter, but we sort so that they're
+	// always returned in a consistent order to make testing easier
 	slices.Sort(paths)
 	d.cache[[2]rune{s, e}] = paths
 	return paths
@@ -110,42 +108,65 @@ func (d Day21) Part1(input string) {
 	defer helpers.TrackTime(time.Now())
 	total := 0
 
-	for _, sequence := range strings.Split(input, "\n") {
-		current := 'A'
-		output := make([][]string, 0)
-		for _, next := range sequence {
-			output = append(output, d.paths(current, next, d.numpad, d.npButtons))
-			current = next
-		}
-		nextSequences := make([]string, 0)
-		combos := helpers.CartesianProduct(output)
-		for _, combo := range combos {
-			nextSequences = append(nextSequences, strings.Join(combo, ""))
+	for _, line := range strings.Split(input, "\n") {
+		seq := []rune("A" + line)
+
+		// left to right, for each pair of neighboring buttons in `seq`,
+		// `possibilities` contains a slice of possible moves to go from the
+		// left button to its right neighbor
+		var possibilities [][]string
+		for i := range seq[:len(seq)-1] {
+			possibilities = append(possibilities, d.paths(seq[i], seq[i+1], d.numpad, d.npButtons))
 		}
 
-		for range 2 {
-			dirSequences := nextSequences
-			nextSequences = make([]string, 0)
-			for _, dirSequence := range dirSequences {
-				current = 'A'
-				output = make([][]string, 0)
-				for _, next := range dirSequence {
-					output = append(output, d.paths(current, next, d.dirpad, d.dpButtons))
-					current = next
+		// the cartesian product of `possibilities` will produce a list of
+		// candidate dirpad movements
+		var candidates []string
+		for _, possibility := range helpers.CartesianProduct(possibilities) {
+			candidates = append(candidates, strings.Join(possibility, ""))
+		}
+
+		// sort the candidates by their length
+		slices.SortFunc(candidates, func(a, b string) int {
+			return cmp.Compare(len(a), len(b))
+		})
+
+		// only keep candidates with the smallest length
+		minl := len(candidates[0])
+		if i := slices.IndexFunc(candidates, func(s string) bool {
+			return len(s) > minl
+		}); i != -1 {
+			candidates = candidates[:i]
+		}
+
+		// repeat this process using the dirpad
+		next := candidates
+		for range 2 { // 2 dirpads are controlled by robots
+			candidates = make([]string, 0)
+			for _, candidate := range next {
+				seq = []rune("A" + candidate)
+				possibilities = make([][]string, 0)
+				for i := range seq[:len(seq)-1] {
+					possibilities = append(possibilities, d.paths(seq[i], seq[i+1], d.dirpad, d.dpButtons))
 				}
-				combos = helpers.CartesianProduct(output)
-				for _, combo := range combos {
-					nextSequences = append(nextSequences, strings.Join(combo, ""))
+				for _, possibility := range helpers.CartesianProduct(possibilities) {
+					candidates = append(candidates, strings.Join(possibility, ""))
+				}
+				slices.SortFunc(candidates, func(a, b string) int {
+					return cmp.Compare(len(a), len(b))
+				})
+				minl = len(candidates[0])
+				if i := slices.IndexFunc(candidates, func(s string) bool {
+					return len(s) > minl
+				}); i != -1 {
+					candidates = candidates[:i]
 				}
 			}
+			next = candidates
 		}
-
-		minLength := math.MaxInt
-		for _, seq := range nextSequences {
-			minLength = min(minLength, len(seq))
-		}
-		n, _ := strconv.Atoi(sequence[:len(sequence)-1])
-		complexity := n * minLength
+		// compute `complexity` as length of shortest sequence * numeric part of keypad sequence
+		n, _ := strconv.Atoi(line[:len(line)-1])
+		complexity := n * len(candidates[0])
 		total += complexity
 	}
 	fmt.Println("part1", total)
