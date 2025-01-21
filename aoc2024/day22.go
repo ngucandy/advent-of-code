@@ -1,55 +1,48 @@
-package main
+package aoc2024
 
 import (
-	"bufio"
-	"github.com/ngucandy/advent-of-code/internal/helpers"
-	"log/slog"
-	"os"
+	"fmt"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 )
 
-func main() {
-	infile := os.Args[1]
-	slog.Info("Reading input file:", "name", infile)
-	bytes, _ := os.ReadFile(infile)
-	input := string(bytes)
-
-	part1(input)
-	part2(input)
+func init() {
+	Days["22"] = Day22{}
 }
 
-func part1(input string) {
-	defer helpers.TrackTime(time.Now(), "part1")
+type Day22 struct {
+	eg1, eg2 string
+}
+
+func (d Day22) Part1(input string) {
+	defer helpers.TrackTime(time.Now())
 	total := 0
-	scanner := bufio.NewScanner(strings.NewReader(input))
-	for scanner.Scan() {
-		line := scanner.Text()
+	for _, line := range strings.Split(input, "\n") {
 		secret, _ := strconv.Atoi(line)
 
 		for range 2000 {
-			secret = nextSecret(secret)
+			secret = d.nextSecret(secret)
 		}
 		total += secret
 	}
-	slog.Info("Part 1:", "total", total)
+	fmt.Println("part1", total)
 }
 
-func part2(input string) {
-	defer helpers.TrackTime(time.Now(), "part2")
+func (d Day22) Part2(input string) {
+	defer helpers.TrackTime(time.Now())
 	times := 2000
 	buyerPrices := make([][]int, 0)
-	scanner := bufio.NewScanner(strings.NewReader(input))
-	for scanner.Scan() {
-		line := scanner.Text()
+	for _, line := range strings.Split(input, "\n") {
 		secret, _ := strconv.Atoi(line)
 
 		prices := make([]int, times+1)
 		prices[0], _ = strconv.Atoi(line[len(line)-1:])
 		for i := 1; i < times+1; i++ {
-			next := nextSecret(secret)
+			next := d.nextSecret(secret)
 			nextStr := strconv.Itoa(next)
 			prices[i], _ = strconv.Atoi(nextStr[len(nextStr)-1:])
 			secret = next
@@ -57,7 +50,6 @@ func part2(input string) {
 		buyerPrices = append(buyerPrices, prices)
 	}
 
-	start := time.Now()
 	buyerIndexes := make([]map[[4]int]int, 0)
 	allIndexes := make(map[[4]int]bool)
 	for _, prices := range buyerPrices {
@@ -77,18 +69,14 @@ func part2(input string) {
 		}
 		buyerIndexes = append(buyerIndexes, index)
 	}
-	helpers.TrackTime(start, "building indexes")
 
-	start = time.Now()
 	maxPrice := 0
-	var maxIndex []int
 	ch := make(chan []int)
 	go func() {
 		for result := range ch {
 			price := result[0]
 			if price > maxPrice {
 				maxPrice = price
-				maxIndex = result[1:]
 			}
 		}
 	}()
@@ -105,21 +93,11 @@ func part2(input string) {
 		}(index)
 	}
 	wg.Wait()
-	//for index := range allIndexes {
-	//	price := 0
-	//	for _, buyer := range buyerIndexes {
-	//		price += buyer[index]
-	//	}
-	//	if price > maxPrice {
-	//		maxPrice = price
-	//		maxIndex = index
-	//	}
-	//}
-	helpers.TrackTime(start, "find max prices")
-	slog.Info("Part 2:", "price", maxPrice, "index", maxIndex)
+	fmt.Println("part2", maxPrice)
+
 }
 
-func nextSecret(secret int) int {
+func (d Day22) nextSecret(secret int) int {
 	next := secret << 6 // multiply by 64
 	next ^= secret
 	next &= 0xffffff // modulo 16777216
