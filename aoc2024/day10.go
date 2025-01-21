@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -25,12 +24,12 @@ type Day10 struct {
 	example string
 }
 
-func (d Day10) Part1(input string) {
+func (d Day10) Part1(input string) any {
 	d.part1Iterative(input)
-	d.part1Recursive(input)
+	return d.part1Recursive(input)
 }
 
-func (d Day10) part1Iterative(input string) {
+func (d Day10) part1Iterative(input string) any {
 	defer helpers.TrackTime(time.Now())
 	var grid [][]int
 	var heads [][2]int
@@ -71,10 +70,10 @@ func (d Day10) part1Iterative(input string) {
 		score += len(ends)
 	}
 
-	fmt.Println("part1 iterative", score)
+	return score
 }
 
-func (d Day10) part1Recursive(input string) {
+func (d Day10) part1Recursive(input string) any {
 	defer helpers.TrackTime(time.Now())
 	var grid [][]int
 	var heads, ends [][2]int
@@ -101,7 +100,7 @@ func (d Day10) part1Recursive(input string) {
 			}
 		}
 	}
-	fmt.Println("part1 recursive", score)
+	return score
 }
 
 func (d Day10) reachable(start [2]int, end [2]int, grid [][]int) bool {
@@ -123,12 +122,12 @@ func (d Day10) reachable(start [2]int, end [2]int, grid [][]int) bool {
 	return false
 }
 
-func (d Day10) Part2(input string) {
+func (d Day10) Part2(input string) any {
 	d.part2Iterative(input)
-	d.part2Recursive(input)
+	return d.part2Recursive(input)
 }
 
-func (d Day10) part2Iterative(input string) {
+func (d Day10) part2Iterative(input string) any {
 	defer helpers.TrackTime(time.Now())
 	var grid [][]int
 	var heads [][2]int
@@ -167,10 +166,10 @@ func (d Day10) part2Iterative(input string) {
 		}
 	}
 
-	fmt.Println("part2 iterative", score)
+	return score
 }
 
-func (d Day10) part2Recursive(input string) {
+func (d Day10) part2Recursive(input string) any {
 	defer helpers.TrackTime(time.Now())
 	var grid [][]int
 	var heads, ends [][2]int
@@ -195,7 +194,7 @@ func (d Day10) part2Recursive(input string) {
 			score += d.count(head, end, grid, make(map[[2][2]int]int))
 		}
 	}
-	fmt.Println("part2 recursive", score)
+	return score
 }
 
 func (d Day10) count(start [2]int, end [2]int, grid [][]int, cache map[[2][2]int]int) int {

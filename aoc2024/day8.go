@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -26,7 +25,7 @@ type Day8 struct {
 	example string
 }
 
-func (d Day8) Part1(input string) {
+func (d Day8) Part1(input string) any {
 	var w, h int
 	frequencies := make(map[rune][][2]int)
 	for r, line := range strings.Split(input, "\n") {
@@ -56,10 +55,10 @@ func (d Day8) Part1(input string) {
 			}
 		}
 	}
-	fmt.Println("part1", len(antinodes))
+	return len(antinodes)
 }
 
-func (d Day8) Part2(input string) {
+func (d Day8) Part2(input string) any {
 	var w, h int
 	frequencies := make(map[rune][][2]int)
 	for r, line := range strings.Split(input, "\n") {
@@ -88,5 +87,5 @@ func (d Day8) Part2(input string) {
 			}
 		}
 	}
-	fmt.Println("part2", len(antinodes))
+	return len(antinodes)
 }

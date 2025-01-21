@@ -15,17 +15,17 @@ func init() {
 type Day1 struct {
 }
 
-func (d Day1) Part1(input string) {
+func (d Day1) Part1(input string) any {
 	list1, list2 := d.buildLists(input)
 	sum := 0
 	for i, n := range list1 {
 		sum += helpers.AbsInt(n - list2[i])
 	}
 
-	fmt.Println("part1", sum)
+	return sum
 }
 
-func (d Day1) Part2(input string) {
+func (d Day1) Part2(input string) any {
 	list1, list2 := d.buildLists(input)
 	list2index := make([]int, list2[len(list2)-1]+1, list2[len(list2)-1]+1)
 	for _, n := range list2 {
@@ -36,7 +36,7 @@ func (d Day1) Part2(input string) {
 	for _, n := range list1 {
 		score += n * list2index[n]
 	}
-	fmt.Println("part2", score)
+	return score
 }
 
 func (d Day1) buildLists(input string) ([]int, []int) {

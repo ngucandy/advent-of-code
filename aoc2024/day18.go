@@ -14,7 +14,7 @@ type Day18 struct {
 	eg1, eg2 string
 }
 
-func (d Day18) Part1(input string) {
+func (d Day18) Part1(input string) any {
 	size := 71
 	var grid [][]rune
 	for range size {
@@ -39,8 +39,7 @@ func (d Day18) Part1(input string) {
 		q = q[1:]
 
 		if r == len(grid)-1 && c == len(grid[0])-1 {
-			fmt.Println("part1", s)
-			break
+			return s
 		}
 
 		if seen[[2]int{r, c}] {
@@ -56,9 +55,10 @@ func (d Day18) Part1(input string) {
 			q = append(q, [3]int{nr, nc, s + 1})
 		}
 	}
+	return nil
 }
 
-func (d Day18) Part2(input string) {
+func (d Day18) Part2(input string) any {
 	size := 71
 	var grid [][]rune
 	for range size {
@@ -99,7 +99,7 @@ line:
 				q = append(q, [3]int{nr, nc, s + 1})
 			}
 		}
-		fmt.Printf("part2 %d,%d\n", x, y)
-		break
+		return fmt.Sprintf("%d,%d", x, y)
 	}
+	return nil
 }

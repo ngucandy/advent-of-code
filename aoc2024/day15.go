@@ -42,7 +42,7 @@ type Day15 struct {
 	directions map[rune][2]int
 }
 
-func (d Day15) Part1(input string) {
+func (d Day15) Part1(input string) any {
 	sections := strings.Split(input, "\n\n")
 
 	var grid [][]rune
@@ -71,7 +71,7 @@ func (d Day15) Part1(input string) {
 			}
 		}
 	}
-	fmt.Println("part1", sum)
+	return sum
 }
 
 func (d Day15) move(r, c int, m rune, grid [][]rune) bool {
@@ -94,7 +94,7 @@ func (d Day15) move(r, c int, m rune, grid [][]rune) bool {
 	return false
 }
 
-func (d Day15) Part2(input string) {
+func (d Day15) Part2(input string) any {
 	sections := strings.Split(input, "\n\n")
 
 	var grid [][]rune
@@ -137,7 +137,7 @@ func (d Day15) Part2(input string) {
 			}
 		}
 	}
-	fmt.Println("part2", sum)
+	return sum
 }
 
 func (d Day15) moveUpOrDown(r, c int, m rune, grid [][]rune) {

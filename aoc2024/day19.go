@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -13,7 +12,7 @@ type Day19 struct {
 	eg1, eg2 string
 }
 
-func (d Day19) Part1(input string) {
+func (d Day19) Part1(input string) any {
 	sections := strings.Split(input, "\n\n")
 
 	patterns := make(map[string]bool)
@@ -28,7 +27,7 @@ func (d Day19) Part1(input string) {
 			total++
 		}
 	}
-	fmt.Println("part1", total)
+	return total
 }
 
 func (d Day19) isPossible(design string, patterns map[string]bool, cache map[string]bool) bool {
@@ -49,7 +48,7 @@ func (d Day19) isPossible(design string, patterns map[string]bool, cache map[str
 	return false
 }
 
-func (d Day19) Part2(input string) {
+func (d Day19) Part2(input string) any {
 	sections := strings.Split(input, "\n\n")
 
 	patterns := make(map[string]bool)
@@ -62,7 +61,7 @@ func (d Day19) Part2(input string) {
 	for _, design := range strings.Split(sections[1], "\n") {
 		total += d.countPossible(design, patterns, cache)
 	}
-	fmt.Println("part2", total)
+	return total
 
 }
 

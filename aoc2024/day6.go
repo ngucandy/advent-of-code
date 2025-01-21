@@ -29,7 +29,7 @@ type Day6 struct {
 	example string
 }
 
-func (d Day6) Part1(input string) {
+func (d Day6) Part1(input string) any {
 	var grid [][]rune
 	var sr, sc int
 	for r, line := range strings.Split(input, "\n") {
@@ -68,10 +68,10 @@ func (d Day6) Part1(input string) {
 		// not blocked
 		r, c = nr, nc
 	}
-	fmt.Println("part1", len(visited))
+	return len(visited)
 }
 
-func (d Day6) Part2(input string) {
+func (d Day6) Part2(input string) any {
 	defer helpers.TrackTime(time.Now())
 	var grid0 [][]rune
 	var sr, sc int
@@ -136,7 +136,7 @@ func (d Day6) Part2(input string) {
 		}
 	}
 	wg.Wait()
-	fmt.Println("part2", stuck)
+	return stuck
 }
 
 func (d Day6) inbounds(r, c int, grid [][]rune) bool {

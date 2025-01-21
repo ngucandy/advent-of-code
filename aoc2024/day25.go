@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -53,7 +52,7 @@ type Day25 struct {
 	eg1, eg2 string
 }
 
-func (d Day25) Part1(input string) {
+func (d Day25) Part1(input string) any {
 	var locks, keys [][5]int
 	for _, section := range strings.Split(input, "\n\n") {
 		heights := [5]int{-1, -1, -1, -1, -1}
@@ -83,7 +82,9 @@ func (d Day25) Part1(input string) {
 			count++
 		}
 	}
-	fmt.Println("part1", count)
+	return count
 }
 
-func (d Day25) Part2(_ string) {}
+func (d Day25) Part2(_ string) any {
+	return "done!"
+}

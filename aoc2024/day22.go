@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"sync"
@@ -18,7 +17,7 @@ type Day22 struct {
 	eg1, eg2 string
 }
 
-func (d Day22) Part1(input string) {
+func (d Day22) Part1(input string) any {
 	defer helpers.TrackTime(time.Now())
 	total := 0
 	for _, line := range strings.Split(input, "\n") {
@@ -29,10 +28,10 @@ func (d Day22) Part1(input string) {
 		}
 		total += secret
 	}
-	fmt.Println("part1", total)
+	return total
 }
 
-func (d Day22) Part2(input string) {
+func (d Day22) Part2(input string) any {
 	defer helpers.TrackTime(time.Now())
 	times := 2000
 	buyerPrices := make([][]int, 0)
@@ -93,8 +92,7 @@ func (d Day22) Part2(input string) {
 		}(index)
 	}
 	wg.Wait()
-	fmt.Println("part2", maxPrice)
-
+	return maxPrice
 }
 
 func (d Day22) nextSecret(secret int) int {

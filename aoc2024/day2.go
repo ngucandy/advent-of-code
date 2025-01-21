@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"slices"
 	"strconv"
 	"strings"
@@ -16,7 +15,7 @@ func init() {
 type Day2 struct {
 }
 
-func (d Day2) Part1(input string) {
+func (d Day2) Part1(input string) any {
 	count := 0
 	for _, line := range strings.Split(input, "\n") {
 		var report []int
@@ -28,10 +27,10 @@ func (d Day2) Part1(input string) {
 			count++
 		}
 	}
-	fmt.Println("part1", count)
+	return count
 }
 
-func (d Day2) Part2(input string) {
+func (d Day2) Part2(input string) any {
 	count := 0
 report:
 	for _, line := range strings.Split(input, "\n") {
@@ -51,7 +50,7 @@ report:
 			}
 		}
 	}
-	fmt.Println("part2", count)
+	return count
 }
 
 func (d Day2) safe(report []int) bool {

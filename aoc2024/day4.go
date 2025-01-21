@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -12,7 +11,7 @@ func init() {
 type Day4 struct {
 }
 
-func (d Day4) Part1(input string) {
+func (d Day4) Part1(input string) any {
 	var grid [][]rune
 	for _, line := range strings.Split(input, "\n") {
 		grid = append(grid, []rune(line))
@@ -29,10 +28,10 @@ func (d Day4) Part1(input string) {
 			}
 		}
 	}
-	fmt.Println("part1", count)
+	return count
 }
 
-func (d Day4) Part2(input string) {
+func (d Day4) Part2(input string) any {
 	var grid [][]rune
 	for _, line := range strings.Split(input, "\n") {
 		grid = append(grid, []rune(line))
@@ -56,7 +55,7 @@ func (d Day4) Part2(input string) {
 			}
 		}
 	}
-	fmt.Println("part2", count)
+	return count
 }
 
 // match recursively searches for `word` in the grid. The level of recursion

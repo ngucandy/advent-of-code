@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 )
@@ -14,7 +13,7 @@ type Day23 struct {
 	eg1, eg2 string
 }
 
-func (d Day23) Part1(input string) {
+func (d Day23) Part1(input string) any {
 	connections := make(map[string][]string)
 	for _, line := range strings.Split(input, "\n") {
 		parts := strings.Split(line, "-")
@@ -39,10 +38,10 @@ func (d Day23) Part1(input string) {
 		}
 	}
 
-	fmt.Println("part1", len(triples))
+	return len(triples)
 }
 
-func (d Day23) Part2(input string) {
+func (d Day23) Part2(input string) any {
 	connections := make(map[string][]string)
 	for _, line := range strings.Split(input, "\n") {
 		parts := strings.Split(line, "-")
@@ -62,7 +61,7 @@ func (d Day23) Part2(input string) {
 	}
 
 	slices.Sort(maxSet)
-	fmt.Println("part2", strings.Join(maxSet, ","))
+	return strings.Join(maxSet, ",")
 }
 
 func (d Day23) getConnected(c1 string, set []string, connections map[string][]string) []string {

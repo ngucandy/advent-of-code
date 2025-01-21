@@ -21,7 +21,7 @@ type Day14 struct {
 	example string
 }
 
-func (d Day14) Part1(input string) {
+func (d Day14) Part1(input string) any {
 	var robots [][2][2]int
 	for _, line := range strings.Split(input, "\n") {
 		// e.g., p=92,72 v=-49,-72
@@ -63,9 +63,9 @@ func (d Day14) Part1(input string) {
 		}
 		q4++
 	}
-	fmt.Println("part1", q1*q2*q3*q4)
+	return q1 * q2 * q3 * q4
 }
-func (d Day14) Part2(input string) {
+func (d Day14) Part2(input string) any {
 	var robots [][2][2]int
 	for _, line := range strings.Split(input, "\n") {
 		// e.g., p=92,72 v=-49,-72
@@ -119,7 +119,7 @@ func (d Day14) Part2(input string) {
 			break
 		}
 	}
-	fmt.Println("part2", seconds)
+	return seconds
 }
 
 func makeImage(rows, cols int, graph [][]rune, frame int) {

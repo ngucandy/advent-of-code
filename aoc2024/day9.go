@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -15,7 +14,7 @@ type Day9 struct {
 	example string
 }
 
-func (d Day9) Part1(input string) {
+func (d Day9) Part1(input string) any {
 	var blocks []int
 	for i, ch := range strings.TrimSpace(input) {
 		n := int(ch - '0')
@@ -54,10 +53,10 @@ func (d Day9) Part1(input string) {
 		}
 		sum += i * id
 	}
-	fmt.Println("part1", sum)
+	return sum
 }
 
-func (d Day9) Part2(input string) {
+func (d Day9) Part2(input string) any {
 	freeBlocks := [][2]int{}
 	fileBlocks := [][2]int{}
 	id := 0
@@ -98,5 +97,5 @@ func (d Day9) Part2(input string) {
 			sum += id * (fileBlock[0] + i)
 		}
 	}
-	fmt.Println("part2", sum)
+	return sum
 }

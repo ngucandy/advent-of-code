@@ -2,7 +2,6 @@ package aoc2024
 
 import (
 	"cmp"
-	"fmt"
 	"slices"
 	"strings"
 )
@@ -25,7 +24,7 @@ type Day12 struct {
 	directions            [][2]int
 }
 
-func (d Day12) Part1(input string) {
+func (d Day12) Part1(input string) any {
 	var grid [][]rune
 	for _, line := range strings.Split(input, "\n") {
 		grid = append(grid, []rune(line))
@@ -42,10 +41,10 @@ func (d Day12) Part1(input string) {
 			total += a * p
 		}
 	}
-	fmt.Println("part1", total)
+	return total
 }
 
-func (d Day12) Part2(input string) {
+func (d Day12) Part2(input string) any {
 	var grid [][]rune
 	for _, line := range strings.Split(input, "\n") {
 		grid = append(grid, []rune(line))
@@ -72,7 +71,7 @@ func (d Day12) Part2(input string) {
 		area := len(region)
 		total += area * sides
 	}
-	fmt.Println("part2", total)
+	return total
 }
 
 func (d Day12) areaPerimeter(x int, y int, plant rune, grid [][]rune, visited map[[2]int]bool) (area int, perimeter int) {

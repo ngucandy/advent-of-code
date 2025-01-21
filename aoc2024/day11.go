@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -14,7 +13,7 @@ type Day11 struct {
 	example string
 }
 
-func (d Day11) Part1(input string) {
+func (d Day11) Part1(input string) any {
 	var stones []int
 	for _, stone := range strings.Split(strings.TrimSpace(input), " ") {
 		n, _ := strconv.Atoi(stone)
@@ -25,10 +24,10 @@ func (d Day11) Part1(input string) {
 	for _, stone := range stones {
 		count += blink(stone, 25, cache)
 	}
-	fmt.Println("part1", count)
+	return count
 }
 
-func (d Day11) Part2(input string) {
+func (d Day11) Part2(input string) any {
 	var stones []int
 	for _, stone := range strings.Split(strings.TrimSpace(input), " ") {
 		n, _ := strconv.Atoi(stone)
@@ -39,7 +38,7 @@ func (d Day11) Part2(input string) {
 	for _, stone := range stones {
 		count += blink(stone, 75, cache)
 	}
-	fmt.Println("part2", count)
+	return count
 }
 
 func blink(stone int, times int, cache map[[2]int]int) int {

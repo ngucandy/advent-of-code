@@ -2,7 +2,6 @@ package aoc2024
 
 import (
 	"cmp"
-	"fmt"
 	"slices"
 	"strconv"
 	"strings"
@@ -104,7 +103,7 @@ func (d Day21) paths(s, e rune, keypad [][]rune, locations map[rune][2]int) []st
 	return paths
 }
 
-func (d Day21) Part1(input string) {
+func (d Day21) Part1(input string) any {
 	defer helpers.TrackTime(time.Now())
 	total := 0
 
@@ -158,11 +157,10 @@ func (d Day21) Part1(input string) {
 		complexity := n * len(candidates[0])
 		total += complexity
 	}
-	fmt.Println("part1", total)
-
+	return total
 }
 
-func (d Day21) Part2(input string) {
+func (d Day21) Part2(input string) any {
 	defer helpers.TrackTime(time.Now())
 	total := 0
 
@@ -200,7 +198,7 @@ func (d Day21) Part2(input string) {
 		complexity := n * lengths[0]
 		total += complexity
 	}
-	fmt.Println("part2", total)
+	return total
 }
 
 func (d Day21) shortestLength(s, e rune, depth int, cache map[[3]int]int) int {

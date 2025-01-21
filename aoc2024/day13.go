@@ -13,7 +13,7 @@ type Day13 struct {
 	example string
 }
 
-func (d Day13) Part1(input string) {
+func (d Day13) Part1(input string) any {
 	var machines [][][2]float64
 	for _, section := range strings.Split(input, "\n\n") {
 		// Button A: X+94, Y+34
@@ -71,10 +71,10 @@ func (d Day13) Part1(input string) {
 		}
 		tokens += (pressesA * 3.0) + pressesB
 	}
-	fmt.Println("part1", int(tokens))
+	return int(tokens)
 }
 
-func (d Day13) Part2(input string) {
+func (d Day13) Part2(input string) any {
 	var machines [][][2]float64
 	for _, section := range strings.Split(input, "\n\n") {
 		// Button A: X+94, Y+34
@@ -115,7 +115,7 @@ func (d Day13) Part2(input string) {
 		}
 		tokens += (pressesA * 3.0) + pressesB
 	}
-	fmt.Println("part2", int(tokens))
+	return int(tokens)
 }
 
 func isWholeNumber(number float64) bool {

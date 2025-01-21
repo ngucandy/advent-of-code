@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -14,7 +13,7 @@ func init() {
 type Day3 struct {
 }
 
-func (d Day3) Part1(input string) {
+func (d Day3) Part1(input string) any {
 	sum := 0
 	re := regexp.MustCompile(`mul\((\d+),(\d+)\)`)
 	for _, line := range strings.Split(input, "\n") {
@@ -24,10 +23,10 @@ func (d Day3) Part1(input string) {
 			sum += n1 * n2
 		}
 	}
-	fmt.Println("part1", sum)
+	return sum
 }
 
-func (d Day3) Part2(input string) {
+func (d Day3) Part2(input string) any {
 	sum := 0
 	enabled := true
 	re := regexp.MustCompile(`mul\((\d+),(\d+)\)|do\(\)|don't\(\)`)
@@ -49,5 +48,5 @@ func (d Day3) Part2(input string) {
 			}
 		}
 	}
-	fmt.Println("part2", sum)
+	return sum
 }

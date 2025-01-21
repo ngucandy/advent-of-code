@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/ngucandy/advent-of-code/internal/helpers"
@@ -31,14 +30,14 @@ type Day20 struct {
 	eg1, eg2 string
 }
 
-func (d Day20) Part1(input string) {
+func (d Day20) Part1(input string) any {
 	grid, sr, sc := d.makeGrid(input)
 	path, steps := d.countSteps(sr, sc, grid)
 
 	radius := 2
 	save := 100
 	count := d.countCheats(path, radius, grid, steps, save)
-	fmt.Println("part1", count)
+	return count
 }
 
 func (d Day20) countCheats(path [][2]int, radius int, grid [][]rune, steps map[[2]int]int, save int) int {
@@ -92,12 +91,12 @@ func (d Day20) makeGrid(input string) ([][]rune, int, int) {
 	return grid, sr, sc
 }
 
-func (d Day20) Part2(input string) {
+func (d Day20) Part2(input string) any {
 	grid, sr, sc := d.makeGrid(input)
 	path, steps := d.countSteps(sr, sc, grid)
 
 	radius := 20
 	save := 100
 	count := d.countCheats(path, radius, grid, steps, save)
-	fmt.Println("part2", count)
+	return count
 }

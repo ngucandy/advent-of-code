@@ -25,7 +25,7 @@ type Day17 struct {
 	eg1, eg2 string
 }
 
-func (d Day17) Part1(input string) {
+func (d Day17) Part1(input string) any {
 	sections := strings.Split(input, "\n\n")
 
 	var a, b, c int
@@ -41,10 +41,10 @@ func (d Day17) Part1(input string) {
 	}
 
 	output := d.run(program, a, b, c)
-	fmt.Println("part1", helpers.Join(output, ","))
+	return helpers.Join(output, ",")
 }
 
-func (d Day17) Part2(input string) {
+func (d Day17) Part2(input string) any {
 	defer helpers.TrackTime(time.Now())
 	sections := strings.Split(input, "\n\n")
 
@@ -78,7 +78,7 @@ func (d Day17) Part2(input string) {
 			a++
 		}
 	}
-	fmt.Println("part2", a, fmt.Sprintf("%x", a))
+	return fmt.Sprintf("%x", a)
 }
 
 func (d Day17) run(program []int, a int, b int, c int) []int {

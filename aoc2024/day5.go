@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"slices"
 	"strconv"
 	"strings"
@@ -14,7 +13,7 @@ func init() {
 type Day5 struct {
 }
 
-func (d Day5) Part1(input string) {
+func (d Day5) Part1(input string) any {
 	sections := strings.Split(input, "\n\n")
 	rules := make(map[string]struct{})
 	for _, line := range strings.Split(sections[0], "\n") {
@@ -37,10 +36,10 @@ update:
 		middle, _ := strconv.Atoi(pages[len(pages)/2])
 		sum += middle
 	}
-	fmt.Println("part1", sum)
+	return sum
 }
 
-func (d Day5) Part2(input string) {
+func (d Day5) Part2(input string) any {
 	sections := strings.Split(input, "\n\n")
 	rules := make(map[string]struct{})
 	for _, line := range strings.Split(sections[0], "\n") {
@@ -71,5 +70,5 @@ update:
 			}
 		}
 	}
-	fmt.Println("part2", sum)
+	return sum
 }

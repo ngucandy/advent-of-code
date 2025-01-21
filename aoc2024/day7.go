@@ -28,7 +28,7 @@ type Day7 struct {
 	example string
 }
 
-func (d Day7) Part1(input string) {
+func (d Day7) Part1(input string) any {
 	ops := "+*"
 	sum := 0
 	for _, line := range strings.Split(input, "\n") {
@@ -47,10 +47,10 @@ func (d Day7) Part1(input string) {
 			}
 		}
 	}
-	fmt.Println("part1", sum)
+	return sum
 }
 
-func (d Day7) Part2(input string) {
+func (d Day7) Part2(input string) any {
 	defer helpers.TrackTime(time.Now())
 	ops := "+*|"
 	sum := int64(0)
@@ -76,7 +76,7 @@ func (d Day7) Part2(input string) {
 		}()
 	}
 	wg.Wait()
-	fmt.Println("part2", sum)
+	return sum
 }
 
 func (d Day7) eval(operands []int, operators []rune) int {

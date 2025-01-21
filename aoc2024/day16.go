@@ -1,7 +1,6 @@
 package aoc2024
 
 import (
-	"fmt"
 	"math"
 	"slices"
 	"strings"
@@ -71,7 +70,7 @@ type Day16 struct {
 	directions [][2]int
 }
 
-func (d Day16) Part1(input string) {
+func (d Day16) Part1(input string) any {
 	defer helpers.TrackTime(time.Now())
 	var maze [][]rune
 	var sr, sc int
@@ -94,8 +93,7 @@ func (d Day16) Part1(input string) {
 		dir := st.dir
 
 		if maze[r][c] == 'E' {
-			fmt.Println("part1", cost)
-			break
+			return cost
 		}
 		if seen[[3]int{r, c, dir}] {
 			continue
@@ -114,8 +112,9 @@ func (d Day16) Part1(input string) {
 		pq.Push(left)
 		pq.Push(right)
 	}
+	return nil
 }
-func (d Day16) Part2(input string) {
+func (d Day16) Part2(input string) any {
 	defer helpers.TrackTime(time.Now())
 	var maze [][]rune
 	var sr, sc int
@@ -177,5 +176,5 @@ func (d Day16) Part2(input string) {
 	for _, path := range paths {
 		tiles[path] = struct{}{}
 	}
-	fmt.Println("part2", len(tiles))
+	return len(tiles)
 }

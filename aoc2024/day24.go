@@ -14,7 +14,7 @@ type Day24 struct {
 	eg1, eg2 string
 }
 
-func (d Day24) Part1(input string) {
+func (d Day24) Part1(input string) any {
 	sections := strings.Split(input, "\n\n")
 	suppliers := make(map[string]Supplier)
 	for _, line := range strings.Split(sections[0], "\n") {
@@ -57,10 +57,10 @@ func (d Day24) Part1(input string) {
 		o := s.Supply()
 		output |= o
 	}
-	fmt.Println("part1", output)
+	return output
 }
 
-func (d Day24) Part1Recursive(input string) {
+func (d Day24) Part1Recursive(input string) any {
 	sections := strings.Split(input, "\n\n")
 	values := make(map[string]int)
 	for _, line := range strings.Split(sections[0], "\n") {
@@ -92,7 +92,7 @@ func (d Day24) Part1Recursive(input string) {
 		values[z] = d.computeValue(z, values, connections)
 		output |= values[z]
 	}
-	fmt.Println("part1 recursive", output)
+	return output
 }
 
 func (d Day24) computeValue(name string, values map[string]int, connections map[string][3]string) int {
@@ -119,7 +119,7 @@ func (d Day24) computeValue(name string, values map[string]int, connections map[
 	}
 }
 
-func (d Day24) Part2(input string) {
+func (d Day24) Part2(input string) any {
 	sections := strings.Split(input, "\n\n")
 
 	// mapping of [input1, input2] -> [[gate, output]...]
@@ -161,7 +161,7 @@ func (d Day24) Part2(input string) {
 		prev = adder
 	}
 	slices.Sort(crossed)
-	fmt.Println("part2", strings.Join(crossed, ","))
+	return strings.Join(crossed, ",")
 }
 
 type Adder interface {

@@ -11,8 +11,8 @@ import (
 )
 
 type AocDay interface {
-	Part1(string)
-	Part2(string)
+	Part1(string) any
+	Part2(string) any
 }
 
 func main() {
@@ -41,6 +41,6 @@ func main() {
 		panic(err)
 	}
 	input := strings.ReplaceAll(string(inputBytes), "\r\n", "\n")
-	aoc.Part1(input)
-	aoc.Part2(input)
+	fmt.Println("part1", aoc.Part1(input))
+	fmt.Println("part2", aoc.Part2(input))
 }
