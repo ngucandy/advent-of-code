@@ -41,8 +41,14 @@ func main() {
 		panic(err)
 	}
 	input := strings.ReplaceAll(string(inputBytes), "\r\n", "\n")
-	s := time.Now()
-	fmt.Println("part1", aoc.Part1(input), time.Since(s))
-	s = time.Now()
-	fmt.Println("part2", aoc.Part2(input), time.Since(s))
+
+	fmt.Printf("AoC %s Day %s\n", year, day)
+	fn := map[int]func(string) any{
+		0: aoc.Part1,
+		1: aoc.Part2,
+	}
+	for i := range 2 {
+		s := time.Now()
+		fmt.Printf("part%d %v (%v)\n", i+1, fn[i](input), time.Since(s))
+	}
 }
