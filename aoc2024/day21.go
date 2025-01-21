@@ -126,19 +126,6 @@ func (d Day21) Part1(input string) {
 			candidates = append(candidates, strings.Join(possibility, ""))
 		}
 
-		// sort the candidates by their length
-		slices.SortFunc(candidates, func(a, b string) int {
-			return cmp.Compare(len(a), len(b))
-		})
-
-		// only keep candidates with the smallest length
-		minl := len(candidates[0])
-		if i := slices.IndexFunc(candidates, func(s string) bool {
-			return len(s) > minl
-		}); i != -1 {
-			candidates = candidates[:i]
-		}
-
 		// repeat this process using the dirpad
 		next := candidates
 		for range 2 { // 2 dirpads are controlled by robots
@@ -152,10 +139,12 @@ func (d Day21) Part1(input string) {
 				for _, possibility := range helpers.CartesianProduct(possibilities) {
 					candidates = append(candidates, strings.Join(possibility, ""))
 				}
+				// sort the candidates by their length
 				slices.SortFunc(candidates, func(a, b string) int {
 					return cmp.Compare(len(a), len(b))
 				})
-				minl = len(candidates[0])
+				// only keep candidates with the smallest length
+				minl := len(candidates[0])
 				if i := slices.IndexFunc(candidates, func(s string) bool {
 					return len(s) > minl
 				}); i != -1 {
@@ -178,58 +167,61 @@ func (d Day21) Part2(input string) {
 	total := 0
 
 	cache := make(map[[3]int]int)
-	for _, numpadSequence := range strings.Split(input, "\n") {
-		current := 'A'
-		output := make([][]string, 0)
-		for _, next := range numpadSequence {
-			output = append(output, d.paths(current, next, d.numpad, d.npButtons))
-			current = next
+	for _, line := range strings.Split(input, "\n") {
+		seq := []rune("A" + line)
+
+		// left to right, for each pair of neighboring buttons in `seq`,
+		// `possibilities` contains a slice of possible moves to go from the
+		// left button to its right neighbor
+		var possibilities [][]string
+		for i := range seq[:len(seq)-1] {
+			possibilities = append(possibilities, d.paths(seq[i], seq[i+1], d.numpad, d.npButtons))
 		}
-		dirpadSequences := make([]string, 0)
-		combos := helpers.CartesianProduct(output)
-		for _, combo := range combos {
-			dirpadSequences = append(dirpadSequences, strings.Join(combo, ""))
+
+		// the cartesian product of `possibilities` will produce a list of
+		// candidate dirpad movements
+		var candidates []string
+		for _, possibility := range helpers.CartesianProduct(possibilities) {
+			candidates = append(candidates, strings.Join(possibility, ""))
 		}
 
 		var lengths []int
-		for _, seq := range dirpadSequences {
+		for _, candidate := range candidates {
 			length := 0
-			current = 'A'
-			for _, next := range seq {
-				length += d.shortestLength(current, next, 25, cache)
-				current = next
+			seq = []rune("A" + candidate)
+			for i := range seq[:len(seq)-1] {
+				length += d.shortestLength(seq[i], seq[i+1], 25, cache)
 			}
 			lengths = append(lengths, length)
 		}
+
 		slices.Sort(lengths)
-		n, _ := strconv.Atoi(numpadSequence[:len(numpadSequence)-1])
+		n, _ := strconv.Atoi(line[:len(line)-1])
 		complexity := n * lengths[0]
 		total += complexity
-
 	}
 	fmt.Println("part2", total)
 }
 
-func (d Day21) shortestLength(start, end rune, depth int, cache map[[3]int]int) int {
+func (d Day21) shortestLength(s, e rune, depth int, cache map[[3]int]int) int {
 	if depth == 1 {
-		return len(d.paths(start, end, d.dirpad, d.dpButtons)[0])
+		return len(d.paths(s, e, d.dirpad, d.dpButtons)[0])
 	}
-	k := [3]int{int(start), int(end), depth}
-	if l, ok := cache[k]; ok {
+	key := [3]int{int(s), int(e), depth}
+	if l, ok := cache[key]; ok {
 		return l
 	}
 
 	var lengths []int
-	for _, path := range d.paths(start, end, d.dirpad, d.dpButtons) {
+	for _, path := range d.paths(s, e, d.dirpad, d.dpButtons) {
 		length := 0
-		current := 'A'
-		for _, next := range path {
-			length += d.shortestLength(current, next, depth-1, cache)
-			current = next
+		seq := []rune("A" + path)
+		for i := range seq[:len(seq)-1] {
+			length += d.shortestLength(seq[i], seq[i+1], depth-1, cache)
 		}
 		lengths = append(lengths, length)
 	}
 	slices.Sort(lengths)
-	cache[k] = lengths[0]
+	cache[key] = lengths[0]
 	return lengths[0]
 }
