@@ -1,13 +1,10 @@
 package aoc2024
 
 import (
+	"github.com/ngucandy/advent-of-code/internal/queue"
 	"math"
 	"slices"
 	"strings"
-	"time"
-
-	"github.com/ngucandy/advent-of-code/internal/helpers"
-	"github.com/ngucandy/advent-of-code/internal/queue"
 )
 
 type Day16State struct {
@@ -71,7 +68,6 @@ type Day16 struct {
 }
 
 func (d Day16) Part1(input string) any {
-	defer helpers.TrackTime(time.Now())
 	var maze [][]rune
 	var sr, sc int
 	sdir := 0 // east
@@ -115,7 +111,6 @@ func (d Day16) Part1(input string) any {
 	return nil
 }
 func (d Day16) Part2(input string) any {
-	defer helpers.TrackTime(time.Now())
 	var maze [][]rune
 	var sr, sc int
 	sdir := 0 // east

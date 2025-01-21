@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/ngucandy/advent-of-code/aoc2019"
+	"github.com/ngucandy/advent-of-code/aoc2024"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/ngucandy/advent-of-code/aoc2019"
-	"github.com/ngucandy/advent-of-code/aoc2024"
+	"time"
 )
 
 type AocDay interface {
@@ -41,6 +41,8 @@ func main() {
 		panic(err)
 	}
 	input := strings.ReplaceAll(string(inputBytes), "\r\n", "\n")
-	fmt.Println("part1", aoc.Part1(input))
-	fmt.Println("part2", aoc.Part2(input))
+	s := time.Now()
+	fmt.Println("part1", aoc.Part1(input), time.Since(s))
+	s = time.Now()
+	fmt.Println("part2", aoc.Part2(input), time.Since(s))
 }

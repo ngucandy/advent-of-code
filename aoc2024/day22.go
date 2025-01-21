@@ -4,9 +4,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
-
-	"github.com/ngucandy/advent-of-code/internal/helpers"
 )
 
 func init() {
@@ -18,7 +15,6 @@ type Day22 struct {
 }
 
 func (d Day22) Part1(input string) any {
-	defer helpers.TrackTime(time.Now())
 	total := 0
 	for _, line := range strings.Split(input, "\n") {
 		secret, _ := strconv.Atoi(line)
@@ -32,7 +28,6 @@ func (d Day22) Part1(input string) any {
 }
 
 func (d Day22) Part2(input string) any {
-	defer helpers.TrackTime(time.Now())
 	times := 2000
 	buyerPrices := make([][]int, 0)
 	for _, line := range strings.Split(input, "\n") {

@@ -2,12 +2,10 @@ package aoc2024
 
 import (
 	"cmp"
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"slices"
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/ngucandy/advent-of-code/internal/helpers"
 )
 
 func init() {
@@ -104,7 +102,6 @@ func (d Day21) paths(s, e rune, keypad [][]rune, locations map[rune][2]int) []st
 }
 
 func (d Day21) Part1(input string) any {
-	defer helpers.TrackTime(time.Now())
 	total := 0
 
 	for _, line := range strings.Split(input, "\n") {
@@ -161,7 +158,6 @@ func (d Day21) Part1(input string) any {
 }
 
 func (d Day21) Part2(input string) any {
-	defer helpers.TrackTime(time.Now())
 	total := 0
 
 	cache := make(map[[3]int]int)

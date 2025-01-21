@@ -2,12 +2,10 @@ package aoc2024
 
 import (
 	"fmt"
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"slices"
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/ngucandy/advent-of-code/internal/helpers"
 )
 
 func init() {
@@ -45,7 +43,6 @@ func (d Day17) Part1(input string) any {
 }
 
 func (d Day17) Part2(input string) any {
-	defer helpers.TrackTime(time.Now())
 	sections := strings.Split(input, "\n\n")
 
 	var program []int

@@ -2,9 +2,6 @@ package aoc2024
 
 import (
 	"strings"
-	"time"
-
-	"github.com/ngucandy/advent-of-code/internal/helpers"
 )
 
 func init() {
@@ -30,7 +27,6 @@ func (d Day10) Part1(input string) any {
 }
 
 func (d Day10) part1Iterative(input string) any {
-	defer helpers.TrackTime(time.Now())
 	var grid [][]int
 	var heads [][2]int
 	for r, line := range strings.Split(input, "\n") {
@@ -74,7 +70,6 @@ func (d Day10) part1Iterative(input string) any {
 }
 
 func (d Day10) part1Recursive(input string) any {
-	defer helpers.TrackTime(time.Now())
 	var grid [][]int
 	var heads, ends [][2]int
 
@@ -128,7 +123,6 @@ func (d Day10) Part2(input string) any {
 }
 
 func (d Day10) part2Iterative(input string) any {
-	defer helpers.TrackTime(time.Now())
 	var grid [][]int
 	var heads [][2]int
 	for r, line := range strings.Split(input, "\n") {
@@ -170,7 +164,6 @@ func (d Day10) part2Iterative(input string) any {
 }
 
 func (d Day10) part2Recursive(input string) any {
-	defer helpers.TrackTime(time.Now())
 	var grid [][]int
 	var heads, ends [][2]int
 

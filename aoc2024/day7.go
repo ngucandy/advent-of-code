@@ -7,7 +7,6 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
-	"time"
 )
 
 func init() {
@@ -51,7 +50,6 @@ func (d Day7) Part1(input string) any {
 }
 
 func (d Day7) Part2(input string) any {
-	defer helpers.TrackTime(time.Now())
 	ops := "+*|"
 	sum := int64(0)
 	wg := &sync.WaitGroup{}

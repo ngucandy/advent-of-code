@@ -2,12 +2,10 @@ package aoc2024
 
 import (
 	"fmt"
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"strings"
 	"sync"
 	"sync/atomic"
-	"time"
-
-	"github.com/ngucandy/advent-of-code/internal/helpers"
 )
 
 func init() {
@@ -72,7 +70,6 @@ func (d Day6) Part1(input string) any {
 }
 
 func (d Day6) Part2(input string) any {
-	defer helpers.TrackTime(time.Now())
 	var grid0 [][]rune
 	var sr, sc int
 	for r, line := range strings.Split(input, "\n") {
