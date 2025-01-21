@@ -3,9 +3,10 @@ package aoc2019
 import (
 	"cmp"
 	"fmt"
-	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"slices"
 	"strings"
+
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 )
 
 func init() {
@@ -77,7 +78,7 @@ type Day10 struct {
 	eg1, eg2, eg3, eg4, eg5, eg6 string
 }
 
-func (d Day10) Part1(input string) {
+func (d Day10) Part1(input string) any {
 	visible := make(map[[2]int]int)
 	asteroids := make([][2]int, 0)
 	gh, gw := 0, 0
@@ -94,7 +95,6 @@ func (d Day10) Part1(input string) {
 	}
 
 	maxVisible := 0
-	var maxPosition [2]int
 	for i := 0; i < len(asteroids)-1; i++ {
 		for j := i + 1; j < len(asteroids); j++ {
 			a, b := asteroids[i], asteroids[j]
@@ -105,11 +105,9 @@ func (d Day10) Part1(input string) {
 				visible[b]++
 				if visible[a] > maxVisible {
 					maxVisible = visible[a]
-					maxPosition = a
 				}
 				if visible[b] > maxVisible {
 					maxVisible = visible[b]
-					maxPosition = b
 				}
 				continue
 			}
@@ -131,19 +129,17 @@ func (d Day10) Part1(input string) {
 				visible[b]++
 				if visible[a] > maxVisible {
 					maxVisible = visible[a]
-					maxPosition = a
 				}
 				if visible[b] > maxVisible {
 					maxVisible = visible[b]
-					maxPosition = b
 				}
 			}
 		}
 	}
-	fmt.Println("part1", maxPosition, maxVisible)
+	return maxVisible
 }
 
-func (d Day10) Part2(input string) {
+func (d Day10) Part2(input string) any {
 	//input = d.eg5
 	//s := [2]int{13, 11}
 	s := [2]int{29, 26}
@@ -192,7 +188,7 @@ func (d Day10) Part2(input string) {
 
 	slices.SortFunc(visible, d.sort)
 	a200 := visible[199]
-	fmt.Println("part2", a200[1]*100+a200[0])
+	return a200[1]*100 + a200[0]
 }
 
 func (d Day10) sort(a, b [4]int) int {

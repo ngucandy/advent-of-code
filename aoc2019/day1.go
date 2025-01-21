@@ -1,7 +1,6 @@
 package aoc2019
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -13,22 +12,22 @@ func init() {
 type Day1 struct {
 }
 
-func (d Day1) Part1(input string) {
+func (d Day1) Part1(input string) any {
 	sum := 0
 	for _, line := range strings.Split(input, "\n") {
 		n, _ := strconv.Atoi(line)
 		sum += n/3 - 2
 	}
-	fmt.Println("part1", sum)
+	return sum
 }
 
-func (d Day1) Part2(input string) {
+func (d Day1) Part2(input string) any {
 	sum := 0
 	for _, line := range strings.Split(input, "\n") {
 		mass, _ := strconv.Atoi(line)
 		sum += fuel(mass)
 	}
-	fmt.Println("part2", sum)
+	return sum
 }
 
 func fuel(mass int) int {

@@ -2,11 +2,9 @@ package aoc2019
 
 import (
 	"fmt"
-	"os"
 	"slices"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func init() {
@@ -19,7 +17,7 @@ type Day2 struct {
 	example string
 }
 
-func (d Day2) Part1(input string) {
+func (d Day2) Part1(input string) any {
 	parts := strings.Split(strings.TrimSpace(input), ",")
 	var program []int
 	for _, part := range parts {
@@ -29,7 +27,7 @@ func (d Day2) Part1(input string) {
 	program[1] = 12
 	program[2] = 2
 	d.runProgram(program)
-	fmt.Println("part1", program[0])
+	return program[0]
 }
 
 func (d Day2) runProgram(program []int) {
@@ -48,7 +46,7 @@ func (d Day2) runProgram(program []int) {
 	}
 }
 
-func (d Day2) Part2(input string) {
+func (d Day2) Part2(input string) any {
 	parts := strings.Split(strings.TrimSpace(input), ",")
 	var program []int
 	for _, part := range parts {
@@ -58,6 +56,7 @@ func (d Day2) Part2(input string) {
 	program[1] = 12
 	program[2] = 2
 
+	ch := make(chan int)
 	for input1 := 0; input1 <= 99; input1++ {
 		for input2 := 0; input2 <= 99; input2++ {
 			go func(n1, n2 int) {
@@ -65,12 +64,10 @@ func (d Day2) Part2(input string) {
 				p[1], p[2] = n1, n2
 				d.runProgram(p)
 				if p[0] == 19690720 {
-					fmt.Println("part2", 100*p[1]+p[2])
-					os.Exit(0)
+					ch <- 100*p[1] + p[2]
 				}
 			}(input1, input2)
-
 		}
 	}
-	time.Sleep(60 * time.Second)
+	return <-ch
 }

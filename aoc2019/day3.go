@@ -24,7 +24,7 @@ type Day3 struct {
 	example1, example2, example3 string
 }
 
-func (d Day3) Part1(input string) {
+func (d Day3) Part1(input string) any {
 	paths := strings.Split(input, "\n")
 	var grids []map[[2]int]struct{}
 	for _, path := range paths {
@@ -71,10 +71,10 @@ func (d Day3) Part1(input string) {
 	slices.SortFunc(crosses, func(a, b [3]int) int {
 		return cmp.Compare(a[2], b[2])
 	})
-	fmt.Println("part1", crosses[0][2])
+	return crosses[0][2]
 }
 
-func (d Day3) Part2(input string) {
+func (d Day3) Part2(input string) any {
 	paths := strings.Split(input, "\n")
 	var grids []map[[2]int]int
 	for _, path := range paths {
@@ -133,5 +133,5 @@ func (d Day3) Part2(input string) {
 	slices.SortFunc(crosses, func(a, b [3]int) int {
 		return cmp.Compare(a[2], b[2])
 	})
-	fmt.Println("part2", crosses[0][2])
+	return crosses[0][2]
 }

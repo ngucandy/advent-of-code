@@ -1,8 +1,8 @@
 package aoc2019
 
 import (
-	"fmt"
 	"math"
+	"slices"
 	"strings"
 )
 
@@ -17,7 +17,7 @@ type Day8 struct {
 	example1, example2 string
 }
 
-func (d Day8) Part1(input string) {
+func (d Day8) Part1(input string) any {
 	//input = d.example
 	//w, h := 3, 2
 	w, h := 25, 6
@@ -52,7 +52,7 @@ func (d Day8) Part1(input string) {
 			}
 		}
 	}
-	fmt.Println("part1", ones*twos)
+	return ones * twos
 }
 
 func (d Day8) parseLayers(input string, w int, h int) [][][]int {
@@ -77,7 +77,7 @@ func (d Day8) parseLayers(input string, w int, h int) [][][]int {
 	return layers
 }
 
-func (d Day8) Part2(input string) {
+func (d Day8) Part2(input string) any {
 	//input = d.example2
 	//w, h := 2, 2
 	w, h := 25, 6
@@ -100,15 +100,15 @@ func (d Day8) Part2(input string) {
 		}
 	}
 
-	fmt.Println("part2")
+	var image []string
 	for _, row := range final {
-		for _, n := range row {
-			if n == 0 {
-				fmt.Print(" ")
-			} else {
-				fmt.Print("\u2588")
+		line := slices.Repeat([]rune{' '}, len(row))
+		for i, n := range row {
+			if n != 0 {
+				line[i] = '\u2588'
 			}
 		}
-		fmt.Println()
+		image = append(image, string(line))
 	}
+	return "\n" + strings.Join(image, "\n")
 }

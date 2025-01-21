@@ -1,7 +1,6 @@
 package aoc2019
 
 import (
-	"fmt"
 	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"slices"
 	"strconv"
@@ -22,7 +21,7 @@ type Day7 struct {
 	example1, example2, example3, example4, example5 string
 }
 
-func (d Day7) Part1(input string) {
+func (d Day7) Part1(input string) any {
 	var memory []int
 	for _, code := range strings.Split(strings.TrimSpace(input), ",") {
 		n, _ := strconv.Atoi(code)
@@ -30,7 +29,6 @@ func (d Day7) Part1(input string) {
 	}
 
 	maxSignal := 0
-	var maxPhases []int
 	phaseCombos := helpers.CartesianProductN([]int{0, 1, 2, 3, 4}, 5)
 PhaseCombo:
 	for _, phases := range phaseCombos {
@@ -54,13 +52,12 @@ PhaseCombo:
 		}
 		if signal > maxSignal {
 			maxSignal = signal
-			maxPhases = phases
 		}
 	}
-	fmt.Println("part1", maxSignal, maxPhases)
+	return maxSignal
 }
 
-func (d Day7) Part2(input string) {
+func (d Day7) Part2(input string) any {
 	var memory []int
 	for _, code := range strings.Split(strings.TrimSpace(input), ",") {
 		n, _ := strconv.Atoi(code)
@@ -68,7 +65,6 @@ func (d Day7) Part2(input string) {
 	}
 
 	maxSignal := 0
-	var maxPhases []int
 	phaseCombos := helpers.CartesianProductN([]int{5, 6, 7, 8, 9}, 5)
 PhaseCombo:
 	for _, phases := range phaseCombos {
@@ -119,8 +115,7 @@ PhaseCombo:
 		}
 		if signal > maxSignal {
 			maxSignal = signal
-			maxPhases = phases
 		}
 	}
-	fmt.Println("part2", maxSignal, maxPhases)
+	return maxSignal
 }

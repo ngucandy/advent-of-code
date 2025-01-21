@@ -1,7 +1,6 @@
 package aoc2019
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -13,7 +12,7 @@ func init() {
 type Day4 struct {
 }
 
-func (d Day4) Part1(input string) {
+func (d Day4) Part1(input string) any {
 	parts := strings.Split(strings.TrimSpace(input), "-")
 	start, _ := strconv.Atoi(parts[0])
 	end, _ := strconv.Atoi(parts[1])
@@ -36,10 +35,10 @@ outer:
 		count++
 
 	}
-	fmt.Println("part1", count)
+	return count
 }
 
-func (d Day4) Part2(input string) {
+func (d Day4) Part2(input string) any {
 	parts := strings.Split(strings.TrimSpace(input), "-")
 	start, _ := strconv.Atoi(parts[0])
 	end, _ := strconv.Atoi(parts[1])
@@ -69,5 +68,5 @@ outer:
 		count++
 
 	}
-	fmt.Println("part2", count)
+	return count
 }

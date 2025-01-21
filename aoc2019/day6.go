@@ -1,7 +1,6 @@
 package aoc2019
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -39,7 +38,7 @@ type Day6 struct {
 	example2 string
 }
 
-func (d Day6) Part1(input string) {
+func (d Day6) Part1(input string) any {
 	orbits := make(map[string]string)
 	for _, line := range strings.Split(input, "\n") {
 		parts := strings.Split(line, ")")
@@ -51,7 +50,7 @@ func (d Day6) Part1(input string) {
 	for orbiter := range orbits {
 		total += d.countOrbits(orbiter, orbits, cache)
 	}
-	fmt.Println("part1", total)
+	return total
 }
 
 type Day6Tuple struct {
@@ -59,7 +58,7 @@ type Day6Tuple struct {
 	cost int
 }
 
-func (d Day6) Part2(input string) {
+func (d Day6) Part2(input string) any {
 	orbits := make(map[string][]string)
 	for _, line := range strings.Split(input, "\n") {
 		parts := strings.Split(line, ")")
@@ -74,8 +73,7 @@ func (d Day6) Part2(input string) {
 		q = q[1:]
 
 		if t.name == "SAN" {
-			fmt.Println("part2", t.cost-2)
-			break
+			return t.cost - 2
 		}
 
 		if seenCost, found := seen[t.name]; found && seenCost < t.cost {
@@ -87,6 +85,7 @@ func (d Day6) Part2(input string) {
 			q = append(q, Day6Tuple{neighbor, t.cost + 1})
 		}
 	}
+	return nil
 }
 
 func (d Day6) countOrbits(orbiter string, orbits map[string]string, cache map[string]int) int {

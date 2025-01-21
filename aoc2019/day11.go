@@ -2,7 +2,8 @@ package aoc2019
 
 import (
 	"fmt"
-	"github.com/ngucandy/advent-of-code/internal/helpers"
+	"slices"
+	"strings"
 )
 
 func init() {
@@ -12,7 +13,7 @@ func init() {
 type Day11 struct {
 }
 
-func (d Day11) Part1(input string) {
+func (d Day11) Part1(input string) any {
 	comp := NewIntcodeComputer(ParseIntcodeProgram(input), []int{0})
 	up := [2]int{-1, 0}
 	down := [2]int{1, 0}
@@ -44,10 +45,10 @@ func (d Day11) Part1(input string) {
 		nextColor := grid[[2]int{r, c}]
 		comp.input = append(comp.input, nextColor)
 	}
-	fmt.Println("part1", len(grid))
+	return len(grid)
 }
 
-func (d Day11) Part2(input string) {
+func (d Day11) Part2(input string) any {
 	comp := NewIntcodeComputer(ParseIntcodeProgram(input), []int{1})
 	up := [2]int{-1, 0}
 	down := [2]int{1, 0}
@@ -86,18 +87,19 @@ func (d Day11) Part2(input string) {
 		nextColor := grid[[2]int{r, c}]
 		comp.input = append(comp.input, nextColor)
 	}
-	fmt.Println("part2", len(grid), minRow, maxRow, minCol, maxCol)
+
 	var canvas [][]rune
 	for range maxRow + 1 {
-		var row []rune
-		for range maxCol + 1 {
-			row = append(row, ' ')
-		}
-		canvas = append(canvas, row)
+		canvas = append(canvas, slices.Repeat([]rune{' '}, maxCol+1))
 	}
 
 	for pos := range grid {
 		canvas[pos[0]][pos[1]] = '\u2588'
 	}
-	helpers.PrintGrid(canvas)
+
+	var image []string
+	for _, row := range canvas {
+		image = append(image, string(row))
+	}
+	return "\n" + strings.Join(image, "\n")
 }
