@@ -7,21 +7,22 @@ import (
 	"strings"
 )
 
-var (
-	up    = [2]int{0, -1}
-	down  = [2]int{0, 1}
-	left  = [2]int{-1, 0}
-	right = [2]int{1, 0}
-
-	directions = [][2]int{right, down, left, up}
-)
-
 func init() {
-	Days["12"] = Day12{}
+	d := &Day12{
+		up:    [2]int{0, -1},
+		down:  [2]int{0, 1},
+		left:  [2]int{-1, 0},
+		right: [2]int{1, 0},
+	}
+	d.directions = [][2]int{d.right, d.down, d.left, d.up}
+	Days["12"] = d
+
 }
 
 type Day12 struct {
-	example string
+	example               string
+	up, down, left, right [2]int
+	directions            [][2]int
 }
 
 func (d Day12) Part1(input string) {
@@ -37,7 +38,7 @@ func (d Day12) Part1(input string) {
 			if visited[[2]int{x, y}] {
 				continue
 			}
-			a, p := areaPerimeter(x, y, grid[y][x], grid, visited)
+			a, p := d.areaPerimeter(x, y, grid[y][x], grid, visited)
 			total += a * p
 		}
 	}
@@ -58,7 +59,7 @@ func (d Day12) Part2(input string) {
 			if visited[[2]int{x, y}] {
 				continue
 			}
-			regions = append(regions, fill(x, y, grid[y][x], grid, visited))
+			regions = append(regions, d.fill(x, y, grid[y][x], grid, visited))
 		}
 	}
 
@@ -67,14 +68,14 @@ func (d Day12) Part2(input string) {
 		for _, plot := range region {
 			m[plot] = true
 		}
-		sides := countSides(m)
+		sides := d.countSides(m)
 		area := len(region)
 		total += area * sides
 	}
 	fmt.Println("part2", total)
 }
 
-func areaPerimeter(x int, y int, plant rune, grid [][]rune, visited map[[2]int]bool) (area int, perimeter int) {
+func (d Day12) areaPerimeter(x int, y int, plant rune, grid [][]rune, visited map[[2]int]bool) (area int, perimeter int) {
 	if x < 0 || x >= len(grid[0]) || y < 0 || y >= len(grid) || plant != grid[y][x] {
 		return 0, 1
 	}
@@ -85,15 +86,15 @@ func areaPerimeter(x int, y int, plant rune, grid [][]rune, visited map[[2]int]b
 	area = 1
 	perimeter = 0
 
-	for _, direction := range directions {
-		aNext, pNext := areaPerimeter(x+direction[0], y+direction[1], plant, grid, visited)
+	for _, direction := range d.directions {
+		aNext, pNext := d.areaPerimeter(x+direction[0], y+direction[1], plant, grid, visited)
 		area += aNext
 		perimeter += pNext
 	}
 	return area, perimeter
 }
 
-func fill(x int, y int, plant rune, grid [][]rune, visited map[[2]int]bool) [][2]int {
+func (d Day12) fill(x int, y int, plant rune, grid [][]rune, visited map[[2]int]bool) [][2]int {
 	if x < 0 || x >= len(grid[0]) || y < 0 || y >= len(grid) || plant != grid[y][x] {
 		return [][2]int{}
 	}
@@ -102,21 +103,21 @@ func fill(x int, y int, plant rune, grid [][]rune, visited map[[2]int]bool) [][2
 	}
 	visited[[2]int{x, y}] = true
 	region := [][2]int{{x, y}}
-	for _, direction := range directions {
-		region = append(region, fill(x+direction[0], y+direction[1], plant, grid, visited)...)
+	for _, direction := range d.directions {
+		region = append(region, d.fill(x+direction[0], y+direction[1], plant, grid, visited)...)
 	}
 	return region
 }
 
-func countSides(region map[[2]int]bool) int {
+func (d Day12) countSides(region map[[2]int]bool) int {
 	sides := make(map[[2]int][][2]int)
-	sides[up] = [][2]int{}
-	sides[down] = [][2]int{}
-	sides[right] = [][2]int{}
-	sides[left] = [][2]int{}
+	sides[d.up] = [][2]int{}
+	sides[d.down] = [][2]int{}
+	sides[d.right] = [][2]int{}
+	sides[d.left] = [][2]int{}
 
 	for plot := range region {
-		for _, direction := range directions {
+		for _, direction := range d.directions {
 			next := [2]int{plot[0] + direction[0], plot[1] + direction[1]}
 			if _, ok := region[next]; !ok {
 				sides[direction] = append(sides[direction], plot)
@@ -138,10 +139,10 @@ func countSides(region map[[2]int]bool) int {
 	}
 
 	cmpFuncs := make(map[[2]int]func([2]int, [2]int) int)
-	cmpFuncs[up] = cmpHoriz
-	cmpFuncs[down] = cmpHoriz
-	cmpFuncs[left] = cmpVert
-	cmpFuncs[right] = cmpVert
+	cmpFuncs[d.up] = cmpHoriz
+	cmpFuncs[d.down] = cmpHoriz
+	cmpFuncs[d.left] = cmpVert
+	cmpFuncs[d.right] = cmpVert
 
 	countHoriz := func(items [][2]int) int {
 		n := 1
@@ -172,13 +173,13 @@ func countSides(region map[[2]int]bool) int {
 		return n
 	}
 	countFuncs := make(map[[2]int]func([][2]int) int)
-	countFuncs[up] = countHoriz
-	countFuncs[down] = countHoriz
-	countFuncs[left] = countVert
-	countFuncs[right] = countVert
+	countFuncs[d.up] = countHoriz
+	countFuncs[d.down] = countHoriz
+	countFuncs[d.left] = countVert
+	countFuncs[d.right] = countVert
 
 	total := 0
-	for _, direction := range directions {
+	for _, direction := range d.directions {
 		slices.SortFunc(sides[direction], cmpFuncs[direction])
 		count := countFuncs[direction](sides[direction])
 		total += count
