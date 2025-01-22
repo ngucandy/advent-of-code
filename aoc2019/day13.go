@@ -39,13 +39,13 @@ func (d Day13) Part1(input string) any {
 			r, c := pos[0], pos[1]
 			switch t {
 			case 1:
-				grid[r][c] = '#'
-			case 2:
 				grid[r][c] = '\u2588'
+			case 2:
+				grid[r][c] = '\u2585'
 			case 3:
-				grid[r][c] = '='
+				grid[r][c] = '\u2582'
 			case 4:
-				grid[r][c] = '*'
+				grid[r][c] = '\u25CF'
 			}
 		}
 	}
