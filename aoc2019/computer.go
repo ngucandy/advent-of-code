@@ -1,28 +1,35 @@
 package aoc2019
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
 )
 
 type IntcodeComputer struct {
-	memory  []int
-	input   []int
-	output  []int
-	ip      int
-	opfns   map[int]func(map[int]int)
-	relBase int
+	memory   []int
+	input    []int
+	inCh     chan int
+	wantInCh chan struct{}
+	output   []int
+	ip       int
+	opfns    map[int]func(map[int]int)
+	relBase  int
+	ctx      context.Context
+	cancel   context.CancelFunc
 }
 
 func NewIntcodeComputer(program []int, input []int) *IntcodeComputer {
 	c := &IntcodeComputer{
-		memory:  append(program, make([]int, 10000)...),
-		input:   input,
-		output:  make([]int, 0),
-		ip:      0,
-		opfns:   make(map[int]func(map[int]int)),
-		relBase: 0,
+		memory:   append(program, make([]int, 10000)...),
+		input:    input,
+		inCh:     make(chan int),
+		wantInCh: make(chan struct{}),
+		output:   make([]int, 0),
+		ip:       0,
+		opfns:    make(map[int]func(map[int]int)),
+		relBase:  0,
 	}
 	c.opfns[1] = c.opcode1
 	c.opfns[2] = c.opcode2
@@ -33,6 +40,28 @@ func NewIntcodeComputer(program []int, input []int) *IntcodeComputer {
 	c.opfns[7] = c.opcode7
 	c.opfns[8] = c.opcode8
 	c.opfns[9] = c.opcode9
+
+	c.ctx, c.cancel = context.WithCancel(context.TODO())
+
+	// feed input values to inCh on demand
+	go func() {
+		for {
+			select {
+			case <-c.ctx.Done():
+				close(c.inCh)
+				return
+			case <-c.wantInCh:
+				if len(c.input) == 0 {
+					fmt.Println("input wanted but no input values available")
+					c.inCh <- 0
+					continue
+				}
+				n := c.input[0]
+				c.input = c.input[1:]
+				c.inCh <- n
+			}
+		}
+	}()
 	return c
 }
 
@@ -72,8 +101,8 @@ func (c *IntcodeComputer) opcode2(pmodes map[int]int) {
 // take an input value and store it at address 50.
 func (c *IntcodeComputer) opcode3(pmodes map[int]int) {
 	param := c.resolveAddresses(1, 1, pmodes)[0]
-	input := c.input[0]
-	c.input = c.input[1:]
+	c.wantInCh <- struct{}{}
+	input := <-c.inCh
 	c.memory[param] = input
 	c.ip += 2
 }
@@ -156,6 +185,8 @@ func (c *IntcodeComputer) Step() bool {
 
 	// opcode 99 halts program
 	if opcode == 99 {
+		c.cancel()
+		close(c.wantInCh)
 		return false
 	}
 
