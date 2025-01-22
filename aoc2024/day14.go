@@ -115,14 +115,14 @@ func (d Day14) Part2(input string) any {
 		}
 		if cluster {
 			helpers.PrintGrid(graph)
-			makeImage(rows, cols, graph, seconds)
+			d.makeImage(rows, cols, graph, seconds)
 			break
 		}
 	}
 	return seconds
 }
 
-func makeImage(rows, cols int, graph [][]rune, frame int) {
+func (d Day14) makeImage(rows, cols int, graph [][]rune, frame int) {
 	scale := 6
 	img := image.NewRGBA(image.Rect(0, 0, rows*scale, cols*scale))
 	c := color.RGBA{0, 255, 0, 0xff}
