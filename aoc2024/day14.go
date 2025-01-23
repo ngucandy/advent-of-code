@@ -8,8 +8,10 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
+	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/ngucandy/advent-of-code/internal/helpers"
 )
 
@@ -119,6 +121,7 @@ func (d Day14) Part2(input string) any {
 			break
 		}
 	}
+	d.animate(rows, cols, robots, seconds)
 	return seconds
 }
 
@@ -142,4 +145,45 @@ func (d Day14) makeImage(rows, cols int, graph [][]rune, frame int) {
 		panic(err)
 	}
 	_ = png.Encode(f, img)
+}
+
+func (d Day14) animate(rows, cols int, robots [][2][2]int, stop int) {
+	scale := 10
+	width := cols * scale
+	height := rows * scale
+	rl.SetConfigFlags(rl.FlagMsaa4xHint)
+	rl.InitWindow(int32(width), int32(height), "Advent of Code 2024 - Day 14")
+	defer rl.CloseWindow()
+	fps := float32(60)
+	rl.SetTargetFPS(int32(fps))
+
+	seconds := stop - 10
+	frames := 0
+	interval := 60
+	for !rl.WindowShouldClose() {
+		frames++
+		if frames%interval == 0 {
+			seconds++
+		}
+
+		rl.BeginDrawing()
+
+		if seconds < stop {
+			rl.ClearBackground(rl.RayWhite)
+			rl.DrawText(strconv.Itoa(seconds+1), 5, 1, 20, rl.Black)
+			for _, robot := range robots {
+				x, y := float32(robot[0][0]*scale), float32(robot[0][1]*scale)   // initial position
+				vx, vy := float32(robot[1][0]*scale), float32(robot[1][1]*scale) // velocity
+				dx, dy := vx/float32(interval), vy/float32(interval)
+				nx := int32(((int(x+vx*float32(seconds)+dx*float32(frames%interval+1)) % width) + width) % width)
+				ny := int32(((int(y+vy*float32(seconds)+dy*float32(frames%interval+1)) % height) + height) % height)
+
+				//rl.DrawRectangle(nx, ny, int32(scale), int32(scale), rl.Green)
+				rl.DrawCircle(nx+(int32(scale)/2), ny+(int32(scale)/2), float32(scale/2), rl.Green)
+			}
+
+		}
+
+		rl.EndDrawing()
+	}
 }
