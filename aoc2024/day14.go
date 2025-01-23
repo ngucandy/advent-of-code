@@ -147,49 +147,49 @@ func (d Day14) makeImage(rows, cols int, graph [][]rune, frame int) {
 }
 
 func (d Day14) animate(rows, cols int, robots [][2][2]int, simStop int) {
-	scale := 10
+	scale := 8
 	width := cols * scale
 	height := rows * scale
-	rl.SetConfigFlags(rl.FlagMsaa4xHint)
+	rl.SetConfigFlags(rl.FlagVsyncHint)
 	rl.InitWindow(int32(width), int32(height+50), "Advent of Code 2024 - Day 14")
 	defer rl.CloseWindow()
 	fpsTarget := int32(60)
 	rl.SetTargetFPS(fpsTarget)
 
-	simSeconds := simStop - 10 // simulation seconds
+	simSeconds := simStop - 5 // simulation seconds
 	frames := 0
 	fpsSim := 60 // frames per simulation seconds
 	for !rl.WindowShouldClose() {
-		rl.BeginDrawing()
-		if simSeconds < simStop || (simSeconds == simStop && frames%fpsSim == 0) {
-			rl.ClearBackground(rl.RayWhite)
-			rl.DrawText(fmt.Sprintf("simulation time: %ds (stopping in %d)", simSeconds, simStop-simSeconds), 5, int32(height+20), 20, rl.Red)
-			for _, robot := range robots {
-				x, y := float32(robot[0][0]*scale), float32(robot[0][1]*scale)   // initial position
-				vx, vy := float32(robot[1][0]*scale), float32(robot[1][1]*scale) // velocity
-				dx, dy := vx/float32(fpsSim), vy/float32(fpsSim)
-				nx := int32(((int(x+vx*float32(simSeconds)+dx*float32(frames%fpsSim)) % width) + width) % width)
-				ny := int32(((int(y+vy*float32(simSeconds)+dy*float32(frames%fpsSim)) % height) + height) % height)
-
-				//rl.DrawRectangle(nx, ny, int32(scale), int32(scale), rl.Green)
-				//rl.DrawCircle(nx+(int32(scale)/2), ny+(int32(scale)/2), float32(scale/2)+2, rl.Green)
-
-				v1 := rl.NewVector2(float32(nx+int32(scale/2)), float32(ny))
-				v2 := rl.NewVector2(float32(nx), float32(ny+int32(scale)))
-				v3 := rl.NewVector2(float32(nx+int32(scale)), float32(ny+int32(scale)))
-				rl.DrawTriangle(v1, v2, v3, rl.Green)
+		if simSeconds < simStop {
+			frames++
+			if frames%fpsSim == 0 {
+				simSeconds++
+			}
+			// reduce simulation speed for the final 3 seconds
+			if simSeconds == simStop-3 && frames%fpsSim == 0 {
+				fpsTarget /= 4
+				rl.SetTargetFPS(fpsTarget)
 			}
 		}
-		rl.EndDrawing()
 
-		frames++
-		if frames%fpsSim == 0 {
-			simSeconds++
+		rl.BeginDrawing()
+		rl.ClearBackground(rl.RayWhite)
+		rl.DrawText(fmt.Sprintf("simulation time: %ds (stopping in %d)", simSeconds, simStop-simSeconds), 5, int32(height+20), 20, rl.Red)
+		for _, robot := range robots {
+			x, y := float32(robot[0][0]*scale), float32(robot[0][1]*scale)   // initial position
+			vx, vy := float32(robot[1][0]*scale), float32(robot[1][1]*scale) // velocity
+			dx, dy := vx/float32(fpsSim), vy/float32(fpsSim)
+			nx := int32(((int(x+vx*float32(simSeconds)+dx*float32(frames%fpsSim)) % width) + width) % width)
+			ny := int32(((int(y+vy*float32(simSeconds)+dy*float32(frames%fpsSim)) % height) + height) % height)
+
+			//rl.DrawRectangle(nx, ny, int32(scale), int32(scale), rl.Green)
+			//rl.DrawCircle(nx+(int32(scale)/2), ny+(int32(scale)/2), float32(scale/2)+2, rl.Green)
+
+			v1 := rl.NewVector2(float32(nx+int32(scale/2)), float32(ny))
+			v2 := rl.NewVector2(float32(nx), float32(ny+int32(scale)))
+			v3 := rl.NewVector2(float32(nx+int32(scale)), float32(ny+int32(scale)))
+			rl.DrawTriangle(v1, v2, v3, rl.Green)
 		}
-		// reduce simulation speed for the final 3 seconds
-		if simSeconds == simStop-3 && frames%fpsSim == 0 {
-			fpsTarget /= 4
-			rl.SetTargetFPS(fpsTarget)
-		}
+		rl.EndDrawing()
 	}
 }
