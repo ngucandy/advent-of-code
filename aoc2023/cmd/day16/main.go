@@ -40,7 +40,7 @@ func part1(input string) {
 }
 
 func part2(input string) {
-	defer helpers.TrackTime(time.Now(), "part2")
+	defer helpers.TrackTime(time.Now())
 
 	var grid [][]rune
 	for _, line := range strings.Split(input, "\n") {
