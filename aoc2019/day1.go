@@ -25,15 +25,15 @@ func (d Day1) Part2(input string) any {
 	sum := 0
 	for _, line := range strings.Split(input, "\n") {
 		mass, _ := strconv.Atoi(line)
-		sum += fuel(mass)
+		sum += d.fuel(mass)
 	}
 	return sum
 }
 
-func fuel(mass int) int {
+func (d Day1) fuel(mass int) int {
 	f := mass/3 - 2
 	if f < 0 {
 		return 0
 	}
-	return f + fuel(f)
+	return f + d.fuel(f)
 }
