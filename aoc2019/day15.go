@@ -24,6 +24,10 @@ func (d Day15) Part1(input string) any {
 		east:  {0, 1},
 	}
 
+	stop := func(c *IntcodeComputer) bool {
+		return len(c.output) > 0
+	}
+
 	// bfs
 	type state struct {
 		r, c  int
@@ -51,7 +55,7 @@ queue:
 			// memory state so that we don't have to backtrack if the path
 			// ultimately dead ends
 			nic := s.ic.Clone()
-			out := nic.Run(cmd)
+			out := nic.RunUntil(cmd, stop)
 			switch out {
 			case 0:
 				// hit a wall
@@ -83,6 +87,10 @@ func (d Day15) Part2(input string) any {
 		east:  {0, 1},
 	}
 
+	stop := func(c *IntcodeComputer) bool {
+		return len(c.output) > 0
+	}
+
 	// bfs
 	type state struct {
 		r, c  int
@@ -105,7 +113,7 @@ queue:
 			seen[[2]int{nr, nc}] = true
 
 			nic := s.ic.Clone()
-			out := nic.Run(cmd)
+			out := nic.RunUntil(cmd, stop)
 			switch out {
 			case 0:
 				// hit a wall
@@ -141,7 +149,7 @@ queue:
 			seen[[2]int{nr, nc}] = true
 
 			nic := s.ic.Clone()
-			out := nic.Run(cmd)
+			out := nic.RunUntil(cmd, stop)
 			switch out {
 			case 0:
 				// hit a wall

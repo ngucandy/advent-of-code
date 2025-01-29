@@ -253,9 +253,9 @@ func (c *IntcodeComputer) resolveAddresses(ipoffset, n int, pmodes map[int]int) 
 	return addresses
 }
 
-func (c *IntcodeComputer) Run(input int) int {
+func (c *IntcodeComputer) RunUntil(input int, stop func(*IntcodeComputer) bool) int {
 	c.input = append(c.input, input)
-	for len(c.output) == 0 {
+	for !stop(c) {
 		c.Step()
 	}
 	output := c.output[0]
