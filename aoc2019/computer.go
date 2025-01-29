@@ -3,6 +3,7 @@ package aoc2019
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -250,4 +251,20 @@ func (c *IntcodeComputer) resolveAddresses(ipoffset, n int, pmodes map[int]int) 
 		}
 	}
 	return addresses
+}
+
+func (c *IntcodeComputer) Run(input int) int {
+	c.input = append(c.input, input)
+	for len(c.output) == 0 {
+		c.Step()
+	}
+	output := c.output[0]
+	c.output = c.output[1:]
+	return output
+}
+
+func (c *IntcodeComputer) Clone() *IntcodeComputer {
+	c2 := NewIntcodeComputer([]int{}, []int{})
+	c2.memory = slices.Clone(c.memory)
+	return c2
 }
