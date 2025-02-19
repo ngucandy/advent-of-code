@@ -1,6 +1,8 @@
 package aoc2019
 
 import (
+	"fmt"
+	"github.com/ngucandy/advent-of-code/internal/helpers"
 	"strings"
 )
 
@@ -34,29 +36,23 @@ func init() {
 ###A#B#C################
 ###g#h#i################
 ########################`,
+		eg6: `#######
+#a.#Cd#
+##...##
+##.@.##
+##...##
+#cB#Ab#
+#######`,
 	}
 }
 
 type Day18 struct {
-	eg1, eg2, eg3, eg4, eg5 string
+	eg1, eg2, eg3, eg4, eg5  string
+	eg6, eg7, eg8, eg9, eg10 string
 }
 
 func (d Day18) Part1(input string) any {
-	var grid [][]rune
-	var sr, sc, numKeys int
-	for r, line := range strings.Split(input, "\n") {
-		grid = append(grid, []rune(line))
-		for c, ch := range line {
-			if ch == '@' {
-				sr, sc = r, c
-				continue
-			}
-			if ch >= 'a' && ch <= 'z' {
-				numKeys++
-				continue
-			}
-		}
-	}
+	grid, sr, sc, numKeys := d.parseInput(input)
 
 	index := func(ch rune) int {
 		return int(ch - 'a')
@@ -80,10 +76,8 @@ func (d Day18) Part1(input string) any {
 	for len(q) > 0 {
 		p, steps, collected := q[0].position, q[0].steps, q[0].collected
 		q = q[1:]
-		//fmt.Println(p.r, p.c, steps)
 
 		if vsteps, exists := visited[p]; exists && vsteps <= steps {
-			//fmt.Println("already visited")
 			continue
 		}
 		visited[p] = steps
@@ -114,6 +108,43 @@ func (d Day18) Part1(input string) any {
 	return ans
 }
 
+func (d Day18) parseInput(input string) ([][]rune, int, int, int) {
+	var grid [][]rune
+	var sr, sc, numKeys int
+	for r, line := range strings.Split(input, "\n") {
+		grid = append(grid, []rune(line))
+		for c, ch := range line {
+			if ch == '@' {
+				sr, sc = r, c
+				continue
+			}
+			if ch >= 'a' && ch <= 'z' {
+				numKeys++
+				continue
+			}
+		}
+	}
+	return grid, sr, sc, numKeys
+}
+
 func (d Day18) Part2(input string) any {
+	input = d.eg6
+	grid, sr, sc, numKeys := d.parseInput(input)
+
+	type robot struct {
+		r, c int
+	}
+	var robots []robot
+	grid[sr][sc] = '#'
+	for _, dir := range [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}} {
+		grid[sr+dir[0]][sc+dir[1]] = '#'
+	}
+	for _, dir := range [][2]int{{-1, -1}, {1, -1}, {-1, 1}, {1, 1}} {
+		grid[sr+dir[0]][sc+dir[1]] = '@'
+		robots = append(robots, robot{sr + dir[0], sc + dir[1]})
+	}
+	helpers.PrintGrid(grid)
+	fmt.Println(robots, numKeys)
+
 	return "no answer yet"
 }
