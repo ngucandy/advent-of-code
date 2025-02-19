@@ -1,9 +1,5 @@
 package aoc2019
 
-import (
-	"slices"
-)
-
 func init() {
 	Days["19"] = &Day19{}
 }
@@ -18,7 +14,7 @@ func (d Day19) Part1(input string) any {
 	n := 50
 	for y := range n {
 		for x := range n {
-			c := NewIntcodeComputer(slices.Clone(program), []int{x, y})
+			c := NewIntcodeComputer(program, []int{x, y})
 			for len(c.output) == 0 {
 				c.Step()
 			}
@@ -31,5 +27,36 @@ func (d Day19) Part1(input string) any {
 }
 
 func (d Day19) Part2(input string) any {
-	return "no answer yet"
+	program := ParseIntcodeProgram(input)
+	ans := 0
+	x, y := 0, 50
+	for {
+		c := NewIntcodeComputer(program, []int{x, y})
+		for len(c.output) == 0 {
+			c.Step()
+		}
+		if c.output[0] == 0 {
+			x++
+			continue
+		}
+		c = NewIntcodeComputer(program, []int{x + 99, y})
+		for len(c.output) == 0 {
+			c.Step()
+		}
+		if c.output[0] == 0 {
+			y++
+			continue
+		}
+		c = NewIntcodeComputer(program, []int{x, y + 99})
+		for len(c.output) == 0 {
+			c.Step()
+		}
+		if c.output[0] == 0 {
+			x++
+			continue
+		}
+		ans = x*10000 + y
+		break
+	}
+	return ans
 }
