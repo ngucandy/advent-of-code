@@ -1,6 +1,8 @@
 package aoc2019
 
-import "slices"
+import (
+	"slices"
+)
 
 func init() {
 	Days["19"] = &Day19{}
@@ -14,8 +16,8 @@ func (d Day19) Part1(input string) any {
 	program := ParseIntcodeProgram(input)
 	count := 0
 	n := 50
-	for x := range n {
-		for y := range n {
+	for y := range n {
+		for x := range n {
 			c := NewIntcodeComputer(slices.Clone(program), []int{x, y})
 			for len(c.output) == 0 {
 				c.Step()
