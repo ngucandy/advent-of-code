@@ -70,7 +70,12 @@ type Day20 struct {
 }
 
 func (d Day20) Part1(input string) any {
-	grid, sr, sc, portals := d.parseInput(input)
+	grid, sr, sc, portalMap := d.parseInput(input)
+	portals := make(map[[2]int][2]int)
+	for _, p := range portalMap {
+		portals[p[0]] = p[1]
+		portals[p[1]] = p[0]
+	}
 
 	var ans int
 	q := [][3]int{{sr, sc, 0}}
@@ -107,7 +112,7 @@ func (d Day20) Part1(input string) any {
 	return ans
 }
 
-func (d Day20) parseInput(input string) ([][]rune, int, int, map[[2]int][2]int) {
+func (d Day20) parseInput(input string) ([][]rune, int, int, map[string][][2]int) {
 	var grid [][]rune
 	for _, line := range strings.Split(input, "\n") {
 		grid = append(grid, []rune(line))
@@ -139,12 +144,7 @@ func (d Day20) parseInput(input string) ([][]rune, int, int, map[[2]int][2]int) 
 			}
 		}
 	}
-	portals := make(map[[2]int][2]int)
-	for _, p := range portalMap {
-		portals[p[0]] = p[1]
-		portals[p[1]] = p[0]
-	}
-	return grid, sr, sc, portals
+	return grid, sr, sc, portalMap
 }
 
 func (d Day20) Part2(input string) any {
