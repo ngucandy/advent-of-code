@@ -11,6 +11,7 @@ type Day21 struct {
 }
 
 func (d Day21) Part1(input string) any {
+	// jump if (hole at 1 or 3) and ground at 4
 	program := `NOT A J
 NOT C T
 OR T J
@@ -34,14 +35,15 @@ WALK
 }
 
 func (d Day21) Part2(input string) any {
+	// jump if ((hole at 1 or 2) and ground at 4) or
+	// (hole at 3 and ground at 4 and 8)
 	program := `NOT A J
+NOT B T
+OR T J
 AND D J
 NOT C T
 AND D T
 AND H T
-OR T J
-NOT B T
-AND D T
 OR T J
 RUN
 `
