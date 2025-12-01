@@ -1,5 +1,10 @@
 package aoc2025
 
+import (
+	"fmt"
+	"strings"
+)
+
 func init() {
 	Days["1"] = Day1{
 		example: `L68
@@ -19,8 +24,27 @@ type Day1 struct {
 	example string
 }
 
-func (d Day1) Part1(s string) any {
-	return nil
+func (d Day1) Part1(input string) any {
+	size := 100
+	count := 0
+	dial := 50
+	var rotation string
+	var distance int
+	for _, line := range strings.Split(input, "\n") {
+		_, err := fmt.Sscanf(line, "%1s%d", &rotation, &distance)
+		if err != nil {
+			fmt.Printf("error scanning input data: %v\n", err)
+			break
+		}
+		if rotation == "L" {
+			distance = -distance + size
+		}
+		dial = (dial + distance) % size
+		if dial == 0 {
+			count++
+		}
+	}
+	return count
 }
 
 func (d Day1) Part2(s string) any {
