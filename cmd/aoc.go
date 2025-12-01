@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/ngucandy/advent-of-code/aoc2019"
-	"github.com/ngucandy/advent-of-code/aoc2024"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/ngucandy/advent-of-code/aoc2019"
+	"github.com/ngucandy/advent-of-code/aoc2024"
+	"github.com/ngucandy/advent-of-code/aoc2025"
 )
 
 type AocDay interface {
@@ -25,6 +27,8 @@ func main() {
 		m = aoc2019.Days
 	case "2024":
 		m = aoc2024.Days
+	case "2025":
+		m = aoc2025.Days
 	default:
 		panic("unsupported aoc year: " + year)
 	}
