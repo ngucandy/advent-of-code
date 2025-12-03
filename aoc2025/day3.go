@@ -1,6 +1,7 @@
 package aoc2025
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -46,6 +47,25 @@ func (d Day3) Part1(input string) any {
 }
 
 func (d Day3) Part2(input string) any {
-	//TODO implement me
-	return nil
+	sum := 0
+	for _, line := range strings.Split(input, "\n") {
+		joltage, _ := strconv.Atoi(string(d.largest(line, 12)))
+		sum += joltage
+	}
+	return sum
+}
+
+func (d Day3) largest(bank string, remaining int) []rune {
+	if remaining == 0 {
+		return []rune{}
+	}
+	pre := bank[:len(bank)-(remaining-1)]
+	for _, r := range "987654321" {
+		i := strings.Index(pre, string(r))
+		if i == -1 {
+			continue
+		}
+		return append([]rune{r}, d.largest(bank[i+1:], remaining-1)...)
+	}
+	panic("should not reach here")
 }
