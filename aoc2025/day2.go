@@ -26,13 +26,12 @@ func (d Day2) Part1(input string) any {
 		// if number of digits in start and end range are the same and it's
 		// odd then this range cannot contain a pattern that repeats twice
 		if len(parts[0]) == len(parts[1]) && len(parts[0])%2 == 1 {
-			fmt.Println("Skipping range", r)
 			continue
 		}
 		start, _ := strconv.Atoi(parts[0])
 		end, _ := strconv.Atoi(parts[1])
 		for i := start; i <= end; i++ {
-			if d.isInvalid(i) {
+			if d.isInvalid1(i) {
 				sum += i
 			}
 		}
@@ -40,7 +39,7 @@ func (d Day2) Part1(input string) any {
 	return sum
 }
 
-func (d Day2) isInvalid(n int) bool {
+func (d Day2) isInvalid1(n int) bool {
 	digits := d.countDigits(n)
 	if digits%2 == 1 {
 		return false
@@ -60,6 +59,32 @@ func (d Day2) countDigits(n int) int {
 }
 
 func (d Day2) Part2(input string) any {
-	//TODO implement me
-	return nil
+	sum := 0
+	for _, r := range strings.Split(input, ",") {
+		parts := strings.Split(r, "-")
+		start, _ := strconv.Atoi(parts[0])
+		end, _ := strconv.Atoi(parts[1])
+		for i := start; i <= end; i++ {
+			if d.isInvalid2(i) {
+				sum += i
+			}
+		}
+	}
+	return sum
+}
+
+func (d Day2) isInvalid2(n int) bool {
+	num := fmt.Sprintf("%d", n)
+	// iterate through possible patterns of num, starting with the first digit,
+	// then first and second, then first, second and third, etc...
+	for i, length := 1, len(num); i <= length/2; i++ {
+		// skip pattern lengths that are not a multiple of the total length
+		if length%i > 0 {
+			continue
+		}
+		if strings.Repeat(num[:i], length/i) == num {
+			return true
+		}
+	}
+	return false
 }
