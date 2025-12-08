@@ -26,3 +26,5 @@ hs_err_pid*
 /advent-of-code.iml
 /target/
 /.swp
+
+day*.txt
