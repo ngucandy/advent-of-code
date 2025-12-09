@@ -1,3 +1,5 @@
+from functools import cache
+
 grid = [list(line.strip()) for line in open(0)]
 
 rows = len(grid)
@@ -14,22 +16,20 @@ for r in range(rows):
     break
 
 # recurse with memoization
-def paths(r, c, cache):
-    for nr in range(r+1, rows):
+@cache
+def paths(r, c):
+    for nr in range(r+1, len(grid)):
         if nr == rows-1:
             return 1
 
         if grid[nr][c] == '^':
-            if (nr, c) in cache:
-                return cache[(nr, c)]
             left, right = 0, 0
             if c > 0:
-                left = paths(nr, c-1, cache)
+                left = paths(nr, c-1)
             if c < cols-1:
-                right = paths(nr, c+1, cache)
-            cache[(nr, c)] = left + right
+                right = paths(nr, c+1)
             return left + right
 
     return 0
 
-print(paths(sr, sc, {}))
+print(paths(sr, sc))
