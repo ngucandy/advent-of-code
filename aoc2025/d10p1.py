@@ -24,8 +24,7 @@ total = 0
 for m in range(len(indicators)):
     want = indicators[m]
     buttons = schematics[m]
-    q = deque()
-    q.append((list('.' * len(want)), 0))
+    q = deque([(list('.' * len(want)), 0)])
     while q:
         lights, presses = q.popleft()
         if lights == want:
