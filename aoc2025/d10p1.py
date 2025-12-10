@@ -4,7 +4,6 @@ lines = [list(line.strip().split()) for line in open(0)]
 
 indicators = []
 schematics = []
-# jolts = []
 
 for line in lines:
     indicator = list(line[0][1:-1])
