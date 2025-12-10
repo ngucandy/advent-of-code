@@ -24,15 +24,16 @@ total = 0
 for m in range(len(indicators)):
     want = indicators[m]
     buttons = schematics[m]
-    q = deque([(list('.' * len(want)), 0)])
+    q = deque([(list('.' * len(want)), [])])
     while q:
         lights, presses = q.popleft()
         if lights == want:
-            # print(m, presses)
-            total += presses
+            total += len(presses)
             break
-        for button in buttons:
+        for i, button in enumerate(buttons):
+            if len(presses) > 0 and i == presses[-1]:
+                continue
             newlights = press(lights, button)
-            q.append((list(newlights), presses+1))
+            q.append((list(newlights), presses+[i]))
 
 print(total)
